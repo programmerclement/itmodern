@@ -1,0 +1,9 @@
+export const ORDER_STATUSES = [
+  'PENDING',
+  'CONFIRMED',
+  'PROCESSING',
+  'READY',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+  'CANCELLED',
+];

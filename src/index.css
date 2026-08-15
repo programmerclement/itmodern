@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: the `dark` utility variant activates from a `.dark`
+   ancestor class (toggled by ThemeContext) instead of the OS media query.
+   This is what lets the admin panel stay forced-light — its route tree
+   never receives the `.dark` class regardless of the visitor's preference,
+   see ThemeContext.jsx. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Brand blue — from the ITMODERN logo */
+  --color-brand-50: #eff9fe;
+  --color-brand-100: #def0fc;
+  --color-brand-200: #b6e2f9;
+  --color-brand-300: #7ccbf3;
+  --color-brand-400: #3cadea;
+  --color-brand-500: #2296db;
+  --color-brand-600: #1578b8;
+  --color-brand-700: #135f95;
+  --color-brand-800: #14507a;
+  --color-brand-900: #154366;
+
+  /* Accent orange — from the ITMODERN logo */
+  --color-accent-50: #fff8ed;
+  --color-accent-100: #ffedd1;
+  --color-accent-200: #ffd8a3;
+  --color-accent-300: #ffbc6a;
+  --color-accent-400: #ff9a2e;
+  --color-accent-500: #f7941d;
+  --color-accent-600: #db6f0c;
+  --color-accent-700: #b6520c;
+  --color-accent-800: #924012;
+  --color-accent-900: #773612;
+
+  --animate-fade-in: fade-in 0.15s ease-out;
+  --animate-slide-in-right: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-left: slide-in-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-bottom: slide-in-bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-top: slide-in-top 0.2s ease-out;
+  --animate-scale-in: scale-in 0.15s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-in-bottom {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-in-top {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-white text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100;
+}
+
+::selection {
+  @apply bg-brand-200 text-brand-900 dark:bg-brand-800 dark:text-brand-50;
+}
