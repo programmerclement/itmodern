@@ -148,7 +148,12 @@ export default function ProductForm() {
           </CardHeader>
           <CardBody className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input label="Name" required value={form.name} onChange={(e) => update({ name: e.target.value })} />
-            <Input label="SKU" required value={form.sku} onChange={(e) => update({ sku: e.target.value.toUpperCase() })} />
+            <Input
+              label="SKU"
+              helperText="Optional — leave blank to auto-manage without one"
+              value={form.sku}
+              onChange={(e) => update({ sku: e.target.value.toUpperCase() })}
+            />
             <Select
               label="Category"
               required

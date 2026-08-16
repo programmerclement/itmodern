@@ -13,7 +13,7 @@ export function buildProductInquiryLink(product) {
     'Hello, I am interested in:',
     product.name,
     '',
-    `SKU: ${product.sku ?? 'N/A'}`,
+    ...(product.sku ? [`SKU: ${product.sku}`] : []),
     `Price: ${formatCurrency(product.price)}`,
   ].join('\n');
 

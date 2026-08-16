@@ -10,13 +10,12 @@ export default function AdjustStockModal({ isOpen, onClose, product, onAdjusted 
   const toast = useToast();
   const [type, setType] = useState('IN');
   const [quantity, setQuantity] = useState('');
-  const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!quantity || !reason.trim()) {
-      toast.error('Quantity and reason are required');
+    if (!quantity) {
+      toast.error('Quantity is required');
       return;
     }
 
@@ -26,11 +25,9 @@ export default function AdjustStockModal({ isOpen, onClose, product, onAdjusted 
         productId: product._id ?? product.id,
         type,
         quantity: Number(quantity),
-        reason,
       });
       toast.success('Stock updated');
       setQuantity('');
-      setReason('');
       onAdjusted();
       onClose();
     } catch (err) {
@@ -43,6 +40,9 @@ export default function AdjustStockModal({ isOpen, onClose, product, onAdjusted 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Adjust stock — ${product?.name ?? ''}`}>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <p className="text-sm text-slate-500">
+          Current stock: <span className="font-medium text-slate-900">{product?.stockQuantity ?? 0}</span>
+        </p>
         <Select label="Type" value={type} onChange={(e) => setType(e.target.value)}>
           <option value="IN">Stock in (received)</option>
           <option value="OUT">Stock out (damaged, lost)</option>
@@ -52,11 +52,11 @@ export default function AdjustStockModal({ isOpen, onClose, product, onAdjusted 
           label="Quantity"
           type="number"
           required
+          autoFocus
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           helperText={type === 'ADJUST' ? 'Use a negative number to decrease stock' : undefined}
         />
-        <Input label="Reason" required value={reason} onChange={(e) => setReason(e.target.value)} />
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel

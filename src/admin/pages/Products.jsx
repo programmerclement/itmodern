@@ -26,11 +26,13 @@ import ErrorState from '../../components/common/ErrorState.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import ProductImagePlaceholder from '../../components/product/ProductImagePlaceholder.jsx';
 import StatCard from '../components/StatCard.jsx';
+import AdjustStockModal from '../components/AdjustStockModal.jsx';
 import { useAdminProducts, useAdminProductStats } from '../../hooks/useAdminProducts.js';
 import { useAdminCategories } from '../../hooks/useAdminCategories.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as productService from '../../services/productService.js';
 import { formatCurrency } from '../../utils/formatCurrency.js';
+import { cn } from '../../utils/cn.js';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -59,6 +61,7 @@ export default function Products() {
   const [featured, setFeatured] = useState('');
   const [stockStatus, setStockStatus] = useState('');
   const [page, setPage] = useState(1);
+  const [adjustingProduct, setAdjustingProduct] = useState(null);
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -242,14 +245,27 @@ export default function Products() {
                       >
                         {product.name}
                       </Link>
-                      <p className="text-xs text-slate-400">{product.sku}</p>
+                      <p className="text-xs text-slate-400">{product.sku || '—'}</p>
                     </Td>
                     <Td>{product.category?.name ?? '—'}</Td>
                     <Td>{formatCurrency(product.price)}</Td>
                     <Td>
-                      <span className={product.stockQuantity === 0 ? 'text-red-600' : ''}>
+                      <button
+                        type="button"
+                        onClick={() => setAdjustingProduct(product)}
+                        aria-label={`Adjust stock for ${product.name}`}
+                        title="Adjust stock"
+                        className={cn(
+                          'rounded-md px-1.5 py-0.5 font-medium hover:bg-slate-100',
+                          product.stockQuantity === 0
+                            ? 'text-red-600'
+                            : product.stockQuantity <= (product.lowStockThreshold ?? 3)
+                              ? 'text-amber-600'
+                              : 'text-slate-700'
+                        )}
+                      >
                         {product.stockQuantity}
-                      </span>
+                      </button>
                     </Td>
                     <Td>
                       <Badge
@@ -335,6 +351,13 @@ export default function Products() {
           )}
         </>
       )}
+
+      <AdjustStockModal
+        isOpen={Boolean(adjustingProduct)}
+        onClose={() => setAdjustingProduct(null)}
+        product={adjustingProduct}
+        onAdjusted={invalidate}
+      />
     </div>
   );
 }

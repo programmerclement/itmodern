@@ -26,13 +26,19 @@ import AccountMenu from '../components/AccountMenu.jsx';
 
 const NAV_GROUPS = [
   {
-    heading: 'Overview',
-    items: [{ to: '/admin', end: true, icon: LayoutDashboard, label: 'Dashboard' }],
+    heading: 'Quick access',
+    // Products and Customers are the two most-used pages — always shown
+    // flat, never tucked behind a dropdown/accordion, even collapsed.
+    alwaysExpanded: true,
+    items: [
+      { to: '/admin', end: true, icon: LayoutDashboard, label: 'Dashboard' },
+      { to: '/admin/products', icon: Package, label: 'Products' },
+      { to: '/admin/customers', icon: Users, label: 'Customers' },
+    ],
   },
   {
     heading: 'Catalog',
     items: [
-      { to: '/admin/products', icon: Package, label: 'Products' },
       { to: '/admin/categories', icon: FolderTree, label: 'Categories' },
       { to: '/admin/brands', icon: Tag, label: 'Brands' },
       { to: '/admin/inventory', icon: Boxes, label: 'Inventory' },
@@ -48,11 +54,8 @@ const NAV_GROUPS = [
     ],
   },
   {
-    heading: 'Customers',
-    items: [
-      { to: '/admin/customers', icon: Users, label: 'Customers' },
-      { to: '/admin/reviews', icon: Star, label: 'Reviews' },
-    ],
+    heading: 'Engagement',
+    items: [{ to: '/admin/reviews', icon: Star, label: 'Reviews' }],
   },
   {
     heading: 'Insights',
@@ -257,11 +260,11 @@ export default function AdminLayout() {
 
         <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-4">
           {NAV_GROUPS.map((group) => {
-            if (isCollapsed && group.items.length > 1) {
+            if (isCollapsed && group.items.length > 1 && !group.alwaysExpanded) {
               return <CollapsedNavGroup key={group.heading} group={group} />;
             }
 
-            const isMultiItem = group.items.length > 1;
+            const isMultiItem = group.items.length > 1 && !group.alwaysExpanded;
             const isExpanded = isCollapsed || !isMultiItem || Boolean(expandedGroups[group.heading]);
 
             return (

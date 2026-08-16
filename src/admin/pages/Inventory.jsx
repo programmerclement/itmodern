@@ -39,7 +39,7 @@ function ProductStockTable({ products, onAdjust }) {
                 </div>
               </Td>
               <Td className="font-medium text-slate-900">{product.name}</Td>
-              <Td className="text-xs text-slate-400">{product.sku}</Td>
+              <Td className="text-xs text-slate-400">{product.sku || '—'}</Td>
               <Td className={product.stockQuantity === 0 ? 'text-red-600' : 'text-amber-600'}>
                 {product.stockQuantity}
               </Td>

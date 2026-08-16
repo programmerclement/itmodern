@@ -183,6 +183,7 @@ export default function Customers() {
               <Tr>
                 <Th>Name</Th>
                 <Th>Email</Th>
+                <Th>Phone</Th>
                 <Th>Role</Th>
                 <Th>Status</Th>
                 <Th>Joined</Th>
@@ -199,7 +200,8 @@ export default function Customers() {
                         {user.name}
                       </Link>
                     </Td>
-                    <Td>{user.email}</Td>
+                    <Td>{user.email || '—'}</Td>
+                    <Td>{user.phone || '—'}</Td>
                     <Td>
                       <Badge variant={user.role === 'admin' ? 'brand' : 'neutral'}>{user.role}</Badge>
                     </Td>

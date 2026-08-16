@@ -94,21 +94,14 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout
-      title="Log in to your account"
-      subtitle="Welcome back — enter your details below."
-      footer={
-        <div className="space-y-3">
-          <p>Don&apos;t have an account?</p>
-          <Button to="/register" variant="outline" className="w-full">
-            Create an account
-          </Button>
-        </div>
-      }
-    >
+    <AuthLayout title="Log in to your account" subtitle="Welcome back — enter your details below.">
       <div className="flex justify-center">
         <GoogleSignInButton onCredential={handleGoogleCredential} />
       </div>
+
+      <Button to="/register" variant="outline" className="mt-3 w-full">
+        Create an account
+      </Button>
 
       <div className="my-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />

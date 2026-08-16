@@ -195,7 +195,7 @@ export default function ProductDetails() {
             </div>
           )}
 
-          <p className="mt-6 text-xs text-slate-400 dark:text-slate-500">SKU: {product.sku}</p>
+          {product.sku && <p className="mt-6 text-xs text-slate-400 dark:text-slate-500">SKU: {product.sku}</p>}
         </div>
       </div>
 
