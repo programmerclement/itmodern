@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { KeyRound, Lock, ShieldCheck } from 'lucide-react';
 import AuthLayout from '../../components/layout/AuthLayout.jsx';
@@ -15,11 +15,20 @@ const MODE_TAB_CLASSES =
   'flex-1 rounded-lg py-2 text-sm font-medium transition-colors';
 
 export default function Login() {
-  const { login, loginWithOtp, googleSignIn } = useAuth();
+  const { user, isAuthenticated, isLoading, login, loginWithOtp, googleSignIn } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from ?? '/account';
+
+  // Already signed in (e.g. bookmarked /login) — bounce straight to where
+  // this user belongs instead of showing the form again.
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate(user.role === 'admin' ? '/admin' : redirectTo, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isAuthenticated]);
 
   const [mode, setMode] = useState('password');
   const [identifier, setIdentifier] = useState('');
@@ -29,6 +38,15 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
+
+  // Admins land in the admin dashboard, not the customer account page —
+  // unless they were sent to /login from a specific admin page already.
+  const redirectFor = (loggedInUser) => {
+    if (loggedInUser.role === 'admin') {
+      return redirectTo.startsWith('/admin') ? redirectTo : '/admin';
+    }
+    return redirectTo;
+  };
 
   const switchMode = (nextMode) => {
     setMode(nextMode);
@@ -42,9 +60,9 @@ export default function Login() {
     setError('');
     setIsSubmitting(true);
     try {
-      await login({ identifier, password });
+      const loggedInUser = await login({ identifier, password });
       toast.success('Welcome back');
-      navigate(redirectTo, { replace: true });
+      navigate(redirectFor(loggedInUser), { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -72,9 +90,9 @@ export default function Login() {
     setError('');
     setIsSubmitting(true);
     try {
-      await loginWithOtp(identifier, code);
+      const loggedInUser = await loginWithOtp(identifier, code);
       toast.success('Welcome back');
-      navigate(redirectTo, { replace: true });
+      navigate(redirectFor(loggedInUser), { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -85,9 +103,9 @@ export default function Login() {
   const handleGoogleCredential = async (credential) => {
     setError('');
     try {
-      await googleSignIn(credential);
+      const loggedInUser = await googleSignIn(credential);
       toast.success('Welcome back');
-      navigate(redirectTo, { replace: true });
+      navigate(redirectFor(loggedInUser), { replace: true });
     } catch (err) {
       setError(err.message);
     }

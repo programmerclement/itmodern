@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import * as authService from '../services/authService.js';
+import { setStoredToken, clearStoredToken } from '../utils/authToken.js';
 
 const AuthContext = createContext(null);
 
@@ -25,32 +26,40 @@ export function AuthProvider({ children }) {
 
   const login = async (credentials) => {
     const result = await authService.login(credentials);
+    setStoredToken(result.data.token);
     setUser(result.data.user);
     return result.data.user;
   };
 
   const loginWithOtp = async (identifier, code) => {
     const result = await authService.verifyOtpLogin(identifier, code);
+    setStoredToken(result.data.token);
     setUser(result.data.user);
     return result.data.user;
   };
 
   const register = async (payload) => {
     const result = await authService.register(payload);
+    setStoredToken(result.data.token);
     setUser(result.data.user);
     return result.data.user;
   };
 
   const googleSignIn = async (credential) => {
     const result = await authService.googleAuth(credential);
+    setStoredToken(result.data.token);
     setUser(result.data.user);
     return result.data.user;
   };
 
   const logout = async () => {
-    await authService.logout();
-    queryClient.setQueryData(ME_QUERY_KEY, { data: { user: null } });
-    queryClient.clear();
+    try {
+      await authService.logout();
+    } finally {
+      clearStoredToken();
+      queryClient.setQueryData(ME_QUERY_KEY, { data: { user: null } });
+      queryClient.clear();
+    }
   };
 
   const refetchUser = () => queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
