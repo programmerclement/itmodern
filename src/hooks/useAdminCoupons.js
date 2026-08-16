@@ -3,10 +3,11 @@ import * as couponService from '../services/couponService.js';
 
 export const ADMIN_COUPONS_KEY = ['admin', 'coupons'];
 
-export function useAdminCoupons() {
+export function useAdminCoupons(params) {
   return useQuery({
-    queryKey: ADMIN_COUPONS_KEY,
-    queryFn: couponService.adminGetCoupons,
-    select: (result) => result.data.coupons,
+    queryKey: [...ADMIN_COUPONS_KEY, params],
+    queryFn: () => couponService.adminGetCoupons(params),
+    placeholderData: (previous) => previous,
+    select: (result) => result.data,
   });
 }

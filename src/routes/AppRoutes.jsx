@@ -23,7 +23,6 @@ import NotFound from '../pages/errors/NotFound.jsx';
 import Login from '../pages/auth/Login.jsx';
 import Register from '../pages/auth/Register.jsx';
 import ForgotPassword from '../pages/auth/ForgotPassword.jsx';
-import ResetPassword from '../pages/auth/ResetPassword.jsx';
 import VerifyEmail from '../pages/auth/VerifyEmail.jsx';
 
 // The admin panel is only ever used by admins, so it's kept out of the
@@ -54,7 +53,6 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
       <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

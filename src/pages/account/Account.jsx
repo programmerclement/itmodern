@@ -9,10 +9,7 @@ import ChangePasswordForm from '../../components/account/ChangePasswordForm.jsx'
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as authService from '../../services/authService.js';
-
-function initialsFor(user) {
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
-}
+import { getInitials } from '../../utils/name.js';
 
 export default function Account() {
   const { user, logout } = useAuth();
@@ -37,23 +34,26 @@ export default function Account() {
     }
   };
 
+  const needsEmailVerification = Boolean(user.email) && !user.isEmailVerified;
+
   return (
     <div>
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-lg font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">
-            {initialsFor(user)}
+            {getInitials(user.name)}
           </div>
           <div>
             <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{user.name}</h1>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-sm text-slate-500 dark:text-slate-400">{user.email}</span>
+              <span className="text-sm text-slate-500 dark:text-slate-400">{user.email || user.phone}</span>
               {user.role === 'admin' && <Badge variant="brand">Admin</Badge>}
-              {user.isEmailVerified ? (
-                <Badge variant="success">Verified</Badge>
-              ) : (
-                <Badge variant="warning">Unverified</Badge>
-              )}
+              {user.email &&
+                (user.isEmailVerified ? (
+                  <Badge variant="success">Verified</Badge>
+                ) : (
+                  <Badge variant="warning">Unverified</Badge>
+                ))}
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ export default function Account() {
         </Button>
       </div>
 
-      {!user.isEmailVerified && (
+      {needsEmailVerification && (
         <div className="mt-6 flex flex-col items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center dark:border-amber-500/30 dark:bg-amber-500/10">
           <div className="flex items-start gap-3">
             <Mail className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />

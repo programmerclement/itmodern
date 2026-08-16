@@ -48,12 +48,12 @@ export default function Modal({ isOpen, onClose, title, children, footer, size =
         aria-label={title}
         tabIndex={-1}
         className={cn(
-          'relative w-full rounded-xl bg-white shadow-xl animate-scale-in focus:outline-none dark:bg-slate-800',
+          'relative flex max-h-[85vh] w-full flex-col rounded-xl bg-white shadow-xl animate-scale-in focus:outline-none dark:bg-slate-800',
           sizeClasses[size]
         )}
       >
         {title && (
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-700">
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-700">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
             <button
               type="button"
@@ -65,9 +65,9 @@ export default function Modal({ isOpen, onClose, title, children, footer, size =
             </button>
           </div>
         )}
-        <div className="px-5 py-4">{children}</div>
+        <div className="overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-4 dark:border-slate-700">
+          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-100 px-5 py-4 dark:border-slate-700">
             {footer}
           </div>
         )}

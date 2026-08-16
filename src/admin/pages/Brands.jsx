@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
+import { Plus, Pencil, Trash2, Tag, Search } from 'lucide-react';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../../components/common/Table.jsx';
 import Badge from '../../components/common/Badge.jsx';
 import Button from '../../components/common/Button.jsx';
+import Input from '../../components/common/Input.jsx';
+import Pagination from '../../components/common/Pagination.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import { PageLoader } from '../../components/common/Loader.jsx';
 import BrandFormModal from '../components/BrandFormModal.jsx';
@@ -12,7 +14,9 @@ import { useToast } from '../../context/ToastContext.jsx';
 import * as brandService from '../../services/brandService.js';
 
 export default function Brands() {
-  const { data: brands, isLoading } = useAdminBrands();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useAdminBrands({ search: search || undefined, page, limit: 10 });
   const queryClient = useQueryClient();
   const toast = useToast();
 
@@ -61,7 +65,7 @@ export default function Brands() {
     }
   };
 
-  if (isLoading) return <PageLoader label="Loading brands" />;
+  const brands = data?.brands;
 
   return (
     <div>
@@ -72,50 +76,76 @@ export default function Brands() {
         </Button>
       </div>
 
-      {brands?.length === 0 ? (
-        <EmptyState icon={Tag} title="No brands yet" action={<Button onClick={openAdd}>Add brand</Button>} />
+      <div className="mb-4">
+        <Input
+          placeholder="Search brands..."
+          leftIcon={<Search className="h-4 w-4" />}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="sm:max-w-xs"
+        />
+      </div>
+
+      {isLoading ? (
+        <PageLoader label="Loading brands" />
+      ) : brands?.length === 0 ? (
+        <EmptyState icon={Tag} title="No brands found" description="Try adjusting your search." action={<Button onClick={openAdd}>Add brand</Button>} />
       ) : (
-        <Table>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Status</Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {brands?.map((brand) => (
-              <Tr key={brand._id}>
-                <Td className="font-medium text-slate-900">{brand.name}</Td>
-                <Td>
-                  <Badge variant={brand.isActive ? 'success' : 'neutral'}>
-                    {brand.isActive ? 'Active' : 'Inactive'}
-                  </Badge>
-                </Td>
-                <Td>
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(brand)}
-                      aria-label="Edit brand"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(brand)}
-                      aria-label="Delete brand"
-                      className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </Td>
+        <>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Status</Th>
+                <Th></Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {brands?.map((brand) => (
+                <Tr key={brand._id}>
+                  <Td className="font-medium text-slate-900">{brand.name}</Td>
+                  <Td>
+                    <Badge variant={brand.isActive ? 'success' : 'neutral'}>
+                      {brand.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(brand)}
+                        aria-label="Edit brand"
+                        className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(brand)}
+                        aria-label="Delete brand"
+                        className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+
+          {data?.pagination.totalPages > 1 && (
+            <Pagination
+              page={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              onPageChange={setPage}
+              className="mt-6"
+            />
+          )}
+        </>
       )}
 
       <BrandFormModal

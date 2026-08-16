@@ -29,6 +29,12 @@ export function AuthProvider({ children }) {
     return result.data.user;
   };
 
+  const loginWithOtp = async (identifier, code) => {
+    const result = await authService.verifyOtpLogin(identifier, code);
+    setUser(result.data.user);
+    return result.data.user;
+  };
+
   const register = async (payload) => {
     const result = await authService.register(payload);
     setUser(result.data.user);
@@ -55,6 +61,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user),
       isLoading: isLoading || isFetching,
       login,
+      loginWithOtp,
       register,
       googleSignIn,
       logout,

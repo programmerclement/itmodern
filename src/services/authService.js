@@ -12,10 +12,14 @@ export const getMe = () => axiosClient.get('/auth/me');
 
 export const updateProfile = (payload) => axiosClient.patch('/auth/me', payload);
 
-export const forgotPassword = (email) => axiosClient.post('/auth/forgot-password', { email });
+export const requestOtp = (identifier, purpose) =>
+  axiosClient.post('/auth/otp/request', { identifier, purpose });
 
-export const resetPassword = (token, password) =>
-  axiosClient.post('/auth/reset-password', { token, password });
+export const verifyOtpLogin = (identifier, code) =>
+  axiosClient.post('/auth/otp/login', { identifier, code });
+
+export const resetPasswordWithOtp = (identifier, code, password) =>
+  axiosClient.post('/auth/otp/reset-password', { identifier, code, password });
 
 export const verifyEmail = (token) => axiosClient.post('/auth/verify-email', { token });
 

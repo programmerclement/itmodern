@@ -9,6 +9,8 @@ export const adminGetProducts = (params) => axiosClient.get('/products/admin/all
 
 export const adminGetProduct = (id) => axiosClient.get(`/products/admin/${id}`);
 
+export const adminGetProductStats = () => axiosClient.get('/products/admin/stats');
+
 export const createProduct = (payload) => axiosClient.post('/products', payload);
 
 export const updateProduct = (id, payload) => axiosClient.put(`/products/${id}`, payload);

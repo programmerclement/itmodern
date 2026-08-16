@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Input from '../common/Input.jsx';
+import PasswordInput from '../common/PasswordInput.jsx';
 import Button from '../common/Button.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as authService from '../../services/authService.js';
@@ -39,9 +39,8 @@ export default function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
+      <PasswordInput
         label="Current password"
-        type="password"
         name="currentPassword"
         autoComplete="current-password"
         required
@@ -49,9 +48,8 @@ export default function ChangePasswordForm() {
         onChange={handleChange}
       />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
+        <PasswordInput
           label="New password"
-          type="password"
           name="newPassword"
           autoComplete="new-password"
           required
@@ -59,9 +57,8 @@ export default function ChangePasswordForm() {
           value={form.newPassword}
           onChange={handleChange}
         />
-        <Input
+        <PasswordInput
           label="Confirm new password"
-          type="password"
           name="confirmPassword"
           autoComplete="new-password"
           required

@@ -10,6 +10,14 @@ export function useAdminUsers(params) {
   });
 }
 
+export function useAdminUserStats() {
+  return useQuery({
+    queryKey: ['admin', 'users', 'stats'],
+    queryFn: userService.adminGetUserStats,
+    select: (result) => result.data,
+  });
+}
+
 export function useAdminUser(id) {
   return useQuery({
     queryKey: ['admin', 'users', 'detail', id],

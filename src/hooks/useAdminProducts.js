@@ -10,6 +10,14 @@ export function useAdminProducts(params) {
   });
 }
 
+export function useAdminProductStats() {
+  return useQuery({
+    queryKey: ['admin', 'products', 'stats'],
+    queryFn: productService.adminGetProductStats,
+    select: (result) => result.data,
+  });
+}
+
 export function useAdminProduct(id) {
   return useQuery({
     queryKey: ['admin', 'products', 'detail', id],

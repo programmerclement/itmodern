@@ -3,7 +3,7 @@ import { axiosClient } from '../api/axiosClient.js';
 export const getBrands = () => axiosClient.get('/brands');
 
 // Admin
-export const adminGetBrands = () => axiosClient.get('/brands/all');
+export const adminGetBrands = (params) => axiosClient.get('/brands/all', { params });
 
 export const createBrand = (payload) => axiosClient.post('/brands', payload);
 

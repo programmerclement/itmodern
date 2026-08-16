@@ -9,15 +9,54 @@ import { useWishlist } from '../../hooks/useWishlist.js';
 import Drawer from '../common/Drawer.jsx';
 import ThemeToggle from '../common/ThemeToggle.jsx';
 import { cn } from '../../utils/cn.js';
+import { getInitials } from '../../utils/name.js';
 
 const NAV_BUTTON_CLASSES =
   'flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100';
 
-const SEARCH_INPUT_CLASSES =
-  'w-full rounded-full border border-slate-200 bg-slate-100 py-2.5 pl-10 pr-3 text-sm text-slate-900 shadow-inner placeholder:text-slate-400 transition-all focus:border-brand-500 focus:bg-white focus:shadow-none focus:outline-none focus:ring-2 focus:ring-brand-500/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-900';
+function NavIconLink({ to, ariaLabel, label, icon, badge }) {
+  return (
+    <Link
+      to={to}
+      aria-label={ariaLabel}
+      className="group relative flex items-center overflow-hidden rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+    >
+      <span className="flex shrink-0 items-center justify-center">{icon}</span>
+      <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-300 group-hover:ml-2 group-hover:max-w-[6rem]">
+        {label}
+      </span>
+      {badge > 0 && (
+        <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-semibold text-white">
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
+    </Link>
+  );
+}
 
-function initialsFor(user) {
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
+function SearchForm({ value, onChange, onSubmit, autoFocus = false, className }) {
+  return (
+    <form onSubmit={onSubmit} className={className}>
+      <div className="flex w-full overflow-hidden rounded-full border border-slate-200 bg-slate-100 shadow-inner transition-all focus-within:border-brand-500 focus-within:bg-white focus-within:shadow-none focus-within:ring-2 focus-within:ring-brand-500/40 dark:border-slate-700 dark:bg-slate-800 dark:focus-within:bg-slate-900">
+        <input
+          type="search"
+          autoFocus={autoFocus}
+          value={value}
+          onChange={onChange}
+          placeholder="Search products..."
+          aria-label="Search products"
+          className="w-full bg-transparent py-2.5 pl-4 pr-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
+        />
+        <button
+          type="submit"
+          aria-label="Search"
+          className="flex shrink-0 items-center justify-center bg-brand-600 px-4 text-white transition-colors hover:bg-brand-700"
+        >
+          <Search className="h-4 w-4" />
+        </button>
+      </div>
+    </form>
+  );
 }
 
 function CategoriesMenu() {
@@ -112,8 +151,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
-      <div className="mx-auto grid h-16 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 px-3 sm:gap-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1 sm:gap-2">
+      <div className="mx-auto grid h-16 max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-3 sm:gap-5 sm:px-6 lg:gap-8 lg:px-8">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             type="button"
             onClick={() => setIsMenuOpen(true)}
@@ -138,19 +177,14 @@ export default function Header() {
           </nav>
         </div>
 
-        <form onSubmit={submitSearch} className="relative hidden w-full max-w-md md:mx-auto md:block">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-          <input
-            type="search"
-            value={searchValue}
-            onChange={(event) => setSearchValue(event.target.value)}
-            placeholder="Search products..."
-            aria-label="Search products"
-            className={SEARCH_INPUT_CLASSES}
-          />
-        </form>
+        <SearchForm
+          value={searchValue}
+          onChange={(event) => setSearchValue(event.target.value)}
+          onSubmit={submitSearch}
+          className="hidden w-full max-w-md md:mx-auto md:block"
+        />
 
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={() => setIsMobileSearchOpen((prev) => !prev)}
@@ -170,60 +204,45 @@ export default function Header() {
               <LayoutDashboard className="h-4 w-4" /> Admin
             </Link>
           )}
-          <Link
+          <NavIconLink
             to="/account"
-            aria-label="My account"
-            className="flex items-center rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            {isAuthenticated ? (
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-[11px] font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">
-                {initialsFor(user)}
-              </span>
-            ) : (
-              <User className="h-5 w-5" />
-            )}
-          </Link>
-          <Link
+            ariaLabel={isAuthenticated ? 'My account' : 'Log in'}
+            label={isAuthenticated ? 'Account' : 'Login'}
+            icon={
+              isAuthenticated ? (
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-[11px] font-semibold text-brand-700 dark:bg-brand-500/20 dark:text-brand-300">
+                  {getInitials(user.name)}
+                </span>
+              ) : (
+                <User className="h-5 w-5" />
+              )
+            }
+          />
+          <NavIconLink
             to="/account/wishlist"
-            aria-label="Wishlist"
-            className="relative rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            <Heart className="h-5 w-5" />
-            {wishlistProducts.length > 0 && (
-              <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-semibold text-white">
-                {wishlistProducts.length > 99 ? '99+' : wishlistProducts.length}
-              </span>
-            )}
-          </Link>
-          <Link
+            ariaLabel="Wishlist"
+            label="Wishlist"
+            icon={<Heart className="h-5 w-5" />}
+            badge={wishlistProducts.length}
+          />
+          <NavIconLink
             to="/cart"
-            aria-label="Cart"
-            className="relative rounded-full p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
-          >
-            <ShoppingCart className="h-5 w-5" />
-            {itemCount > 0 && (
-              <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-semibold text-white">
-                {itemCount > 99 ? '99+' : itemCount}
-              </span>
-            )}
-          </Link>
+            ariaLabel="Cart"
+            label="Cart"
+            icon={<ShoppingCart className="h-5 w-5" />}
+            badge={itemCount}
+          />
         </div>
       </div>
 
       {isMobileSearchOpen && (
         <div className="border-t border-slate-100 px-4 py-3 md:hidden dark:border-slate-800">
-          <form onSubmit={submitSearch} className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-            <input
-              type="search"
-              autoFocus
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-              placeholder="Search products..."
-              aria-label="Search products"
-              className={SEARCH_INPUT_CLASSES}
-            />
-          </form>
+          <SearchForm
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            onSubmit={submitSearch}
+            autoFocus
+          />
         </div>
       )}
 

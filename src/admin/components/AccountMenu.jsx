@@ -3,10 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut, Settings, UserCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
-
-function initialsFor(user) {
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
-}
+import { getInitials } from '../../utils/name.js';
 
 export default function AccountMenu({ compact = false }) {
   const { user, logout } = useAuth();
@@ -53,7 +50,7 @@ export default function AccountMenu({ compact = false }) {
         )}
       >
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
-          {initialsFor(user)}
+          {getInitials(user.name)}
         </span>
         {!compact && (
           <>
@@ -70,7 +67,7 @@ export default function AccountMenu({ compact = false }) {
         >
           <div className="border-b border-slate-100 px-3.5 py-2.5">
             <p className="truncate text-sm font-medium text-slate-900">{user.name}</p>
-            <p className="truncate text-xs text-slate-500">{user.email}</p>
+            <p className="truncate text-xs text-slate-500">{user.email || user.phone}</p>
           </div>
           <Link
             to="/account"

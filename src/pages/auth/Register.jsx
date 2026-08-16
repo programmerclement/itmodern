@@ -3,18 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 import AuthLayout from '../../components/layout/AuthLayout.jsx';
 import Input from '../../components/common/Input.jsx';
+import PasswordInput from '../../components/common/PasswordInput.jsx';
 import Button from '../../components/common/Button.jsx';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
 const INITIAL_FORM = {
-  firstName: '',
-  lastName: '',
+  name: '',
   email: '',
   phone: '',
   password: '',
-  confirmPassword: '',
 };
 
 export default function Register() {
@@ -34,21 +33,15 @@ export default function Register() {
     event.preventDefault();
     setError('');
 
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       await register({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        email: form.email,
-        phone: form.phone || undefined,
+        name: form.name,
+        email: form.email || undefined,
+        phone: form.phone,
         password: form.password,
       });
-      toast.success('Account created', 'Check your email to verify your address.');
+      toast.success('Account created', 'Welcome to ITMODERN.');
       navigate('/account', { replace: true });
     } catch (err) {
       setError(err.message);
@@ -82,33 +75,13 @@ export default function Register() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            label="First name"
-            name="firstName"
-            autoComplete="given-name"
-            required
-            leftIcon={<User className="h-4 w-4" />}
-            value={form.firstName}
-            onChange={handleChange}
-          />
-          <Input
-            label="Last name"
-            name="lastName"
-            autoComplete="family-name"
-            required
-            value={form.lastName}
-            onChange={handleChange}
-          />
-        </div>
         <Input
-          label="Email address"
-          type="email"
-          name="email"
-          autoComplete="email"
+          label="Full name"
+          name="name"
+          autoComplete="name"
           required
-          leftIcon={<Mail className="h-4 w-4" />}
-          value={form.email}
+          leftIcon={<User className="h-4 w-4" />}
+          value={form.name}
           onChange={handleChange}
         />
         <Input
@@ -116,14 +89,24 @@ export default function Register() {
           type="tel"
           name="phone"
           autoComplete="tel"
-          helperText="Optional — used for delivery and order updates."
+          required
+          helperText="Used to sign in and for delivery updates."
           leftIcon={<Phone className="h-4 w-4" />}
           value={form.phone}
           onChange={handleChange}
         />
         <Input
+          label="Email address"
+          type="email"
+          name="email"
+          autoComplete="email"
+          helperText="Optional — used for order receipts."
+          leftIcon={<Mail className="h-4 w-4" />}
+          value={form.email}
+          onChange={handleChange}
+        />
+        <PasswordInput
           label="Password"
-          type="password"
           name="password"
           autoComplete="new-password"
           required
@@ -131,16 +114,6 @@ export default function Register() {
           helperText="At least 8 characters."
           leftIcon={<Lock className="h-4 w-4" />}
           value={form.password}
-          onChange={handleChange}
-        />
-        <Input
-          label="Confirm password"
-          type="password"
-          name="confirmPassword"
-          autoComplete="new-password"
-          required
-          leftIcon={<Lock className="h-4 w-4" />}
-          value={form.confirmPassword}
           onChange={handleChange}
         />
 

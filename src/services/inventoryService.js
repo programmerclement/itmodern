@@ -5,6 +5,6 @@ export const adjustStock = (payload) => axiosClient.post('/inventory/adjust', pa
 export const getStockHistory = (productId, params) =>
   axiosClient.get(`/inventory/history/${productId}`, { params });
 
-export const getLowStock = () => axiosClient.get('/inventory/low-stock');
+export const getLowStock = (params) => axiosClient.get('/inventory/low-stock', { params });
 
-export const getOutOfStock = () => axiosClient.get('/inventory/out-of-stock');
+export const getOutOfStock = (params) => axiosClient.get('/inventory/out-of-stock', { params });

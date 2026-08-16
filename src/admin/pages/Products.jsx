@@ -1,7 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Star, Pencil, Package } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Star,
+  Pencil,
+  Package,
+  Eye,
+  EyeOff,
+  Archive,
+  ExternalLink,
+  CheckCircle2,
+  AlertTriangle,
+  PackageX,
+} from 'lucide-react';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../../components/common/Table.jsx';
 import Input from '../../components/common/Input.jsx';
 import Select from '../../components/common/Select.jsx';
@@ -12,7 +25,8 @@ import { PageLoader } from '../../components/common/Loader.jsx';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import ProductImagePlaceholder from '../../components/product/ProductImagePlaceholder.jsx';
-import { useAdminProducts } from '../../hooks/useAdminProducts.js';
+import StatCard from '../components/StatCard.jsx';
+import { useAdminProducts, useAdminProductStats } from '../../hooks/useAdminProducts.js';
 import { useAdminCategories } from '../../hooks/useAdminCategories.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as productService from '../../services/productService.js';
@@ -25,16 +39,41 @@ const STATUS_OPTIONS = [
   { value: 'archived', label: 'Archived' },
 ];
 
+const FEATURED_OPTIONS = [
+  { value: '', label: 'Featured & not' },
+  { value: 'true', label: 'Featured only' },
+  { value: 'false', label: 'Not featured' },
+];
+
+const STOCK_STATUS_OPTIONS = [
+  { value: '', label: 'All stock levels' },
+  { value: 'in_stock', label: 'In stock' },
+  { value: 'low_stock', label: 'Low stock' },
+  { value: 'out_of_stock', label: 'Out of stock' },
+];
+
 export default function Products() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
+  const [featured, setFeatured] = useState('');
+  const [stockStatus, setStockStatus] = useState('');
   const [page, setPage] = useState(1);
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const { data: categories } = useAdminCategories();
-  const params = { search: search || undefined, status: status || undefined, category: category || undefined, page, limit: 20 };
+  const { data: categoriesData } = useAdminCategories({ limit: 100 });
+  const categories = categoriesData?.categories;
+  const { data: stats } = useAdminProductStats();
+  const params = {
+    search: search || undefined,
+    status: status || undefined,
+    category: category || undefined,
+    featured: featured || undefined,
+    stockStatus: stockStatus || undefined,
+    page,
+    limit: 10,
+  };
   const { data, isLoading, isError, refetch } = useAdminProducts(params);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
@@ -87,7 +126,17 @@ export default function Products() {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
+      {stats && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCard icon={Package} label="Total products" value={stats.total} tone="brand" />
+          <StatCard icon={CheckCircle2} label="Published" value={stats.published} tone="emerald" />
+          <StatCard icon={Star} label="Featured" value={stats.featured} tone="accent" />
+          <StatCard icon={AlertTriangle} label="Low stock" value={stats.lowStock} tone="amber" />
+          <StatCard icon={PackageX} label="Out of stock" value={stats.outOfStock} tone="rose" />
+        </div>
+      )}
+
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <Input
           placeholder="Search by name or SKU..."
           leftIcon={<Search className="h-4 w-4" />}
@@ -96,7 +145,6 @@ export default function Products() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="sm:max-w-xs"
         />
         <Select
           value={category}
@@ -104,7 +152,6 @@ export default function Products() {
             setCategory(e.target.value);
             setPage(1);
           }}
-          className="sm:max-w-[200px]"
         >
           <option value="">All categories</option>
           {categories?.map((c) => (
@@ -119,9 +166,34 @@ export default function Products() {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="sm:max-w-[180px]"
         >
           {STATUS_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+        <Select
+          value={featured}
+          onChange={(e) => {
+            setFeatured(e.target.value);
+            setPage(1);
+          }}
+        >
+          {FEATURED_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
+        <Select
+          value={stockStatus}
+          onChange={(e) => {
+            setStockStatus(e.target.value);
+            setPage(1);
+          }}
+        >
+          {STOCK_STATUS_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -194,28 +266,56 @@ export default function Products() {
                     </Td>
                     <Td>
                       <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeatured(product)}
-                          aria-label="Toggle featured"
+                        <Link
+                          to={`/products/${product.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="View live product page"
+                          title="View live"
                           className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100"
                         >
-                          <Star className={product.featured ? 'h-4 w-4 fill-amber-400 text-amber-400' : 'h-4 w-4'} />
-                        </button>
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
                         <Link
                           to={`/admin/products/${product._id}`}
                           aria-label="Edit product"
+                          title="Edit"
                           className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100"
                         >
                           <Pencil className="h-4 w-4" />
                         </Link>
-                        <Button size="sm" variant="ghost" onClick={() => handleTogglePublish(product)}>
-                          {product.status === 'published' ? 'Unpublish' : 'Publish'}
-                        </Button>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleFeatured(product)}
+                          aria-label="Toggle featured"
+                          title={product.featured ? 'Unfeature' : 'Feature'}
+                          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100"
+                        >
+                          <Star className={product.featured ? 'h-4 w-4 fill-amber-400 text-amber-400' : 'h-4 w-4'} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePublish(product)}
+                          aria-label={product.status === 'published' ? 'Unpublish product' : 'Publish product'}
+                          title={product.status === 'published' ? 'Unpublish' : 'Publish'}
+                          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100"
+                        >
+                          {product.status === 'published' ? (
+                            <Eye className="h-4 w-4 text-emerald-600" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </button>
                         {product.status !== 'archived' && (
-                          <Button size="sm" variant="ghost" onClick={() => handleArchive(product)}>
-                            Archive
-                          </Button>
+                          <button
+                            type="button"
+                            onClick={() => handleArchive(product)}
+                            aria-label="Archive product"
+                            title="Archive"
+                            className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                          >
+                            <Archive className="h-4 w-4" />
+                          </button>
                         )}
                       </div>
                     </Td>

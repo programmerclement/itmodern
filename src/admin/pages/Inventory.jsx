@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Boxes, PackageX } from 'lucide-react';
+import { Boxes, PackageX, Search } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardBody } from '../../components/common/Card.jsx';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../../components/common/Table.jsx';
 import Button from '../../components/common/Button.jsx';
+import Input from '../../components/common/Input.jsx';
+import Pagination from '../../components/common/Pagination.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import { PageLoader } from '../../components/common/Loader.jsx';
 import ProductImagePlaceholder from '../../components/product/ProductImagePlaceholder.jsx';
@@ -54,9 +56,55 @@ function ProductStockTable({ products, onAdjust }) {
   );
 }
 
+function InventorySection({ title, icon, emptyTitle, useHook, search, page, onSearchChange, onPageChange, onAdjust }) {
+  const { data, isLoading } = useHook({ search: search || undefined, page, limit: 10 });
+  const products = data?.products;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
+        <CardTitle>{title}</CardTitle>
+        <Input
+          placeholder="Search name or SKU..."
+          leftIcon={<Search className="h-4 w-4" />}
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="max-w-[220px]"
+        />
+      </CardHeader>
+      <CardBody>
+        {isLoading ? (
+          <PageLoader label="Loading" />
+        ) : products?.length === 0 ? (
+          <EmptyState
+            icon={icon}
+            title={emptyTitle}
+            description={search ? 'Try adjusting your search.' : undefined}
+            className="min-h-[120px] py-4"
+          />
+        ) : (
+          <>
+            <ProductStockTable products={products} onAdjust={onAdjust} />
+            {data?.pagination.totalPages > 1 && (
+              <Pagination
+                page={data.pagination.page}
+                totalPages={data.pagination.totalPages}
+                onPageChange={onPageChange}
+                className="mt-4"
+              />
+            )}
+          </>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function Inventory() {
-  const { data: lowStock, isLoading: lowLoading } = useLowStock();
-  const { data: outOfStock, isLoading: outLoading } = useOutOfStock();
+  const [lowSearch, setLowSearch] = useState('');
+  const [lowPage, setLowPage] = useState(1);
+  const [outSearch, setOutSearch] = useState('');
+  const [outPage, setOutPage] = useState(1);
   const queryClient = useQueryClient();
 
   const [adjustingProduct, setAdjustingProduct] = useState(null);
@@ -71,35 +119,35 @@ export default function Inventory() {
       <h1 className="mb-6 text-xl font-semibold text-slate-900">Inventory</h1>
 
       <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Low stock</CardTitle>
-          </CardHeader>
-          <CardBody>
-            {lowLoading ? (
-              <PageLoader label="Loading" />
-            ) : lowStock.length === 0 ? (
-              <EmptyState icon={Boxes} title="No low stock products" className="min-h-[120px] py-4" />
-            ) : (
-              <ProductStockTable products={lowStock} onAdjust={setAdjustingProduct} />
-            )}
-          </CardBody>
-        </Card>
+        <InventorySection
+          title="Low stock"
+          icon={Boxes}
+          emptyTitle="No low stock products"
+          useHook={useLowStock}
+          search={lowSearch}
+          page={lowPage}
+          onSearchChange={(value) => {
+            setLowSearch(value);
+            setLowPage(1);
+          }}
+          onPageChange={setLowPage}
+          onAdjust={setAdjustingProduct}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Out of stock</CardTitle>
-          </CardHeader>
-          <CardBody>
-            {outLoading ? (
-              <PageLoader label="Loading" />
-            ) : outOfStock.length === 0 ? (
-              <EmptyState icon={PackageX} title="No out-of-stock products" className="min-h-[120px] py-4" />
-            ) : (
-              <ProductStockTable products={outOfStock} onAdjust={setAdjustingProduct} />
-            )}
-          </CardBody>
-        </Card>
+        <InventorySection
+          title="Out of stock"
+          icon={PackageX}
+          emptyTitle="No out-of-stock products"
+          useHook={useOutOfStock}
+          search={outSearch}
+          page={outPage}
+          onSearchChange={(value) => {
+            setOutSearch(value);
+            setOutPage(1);
+          }}
+          onPageChange={setOutPage}
+          onAdjust={setAdjustingProduct}
+        />
       </div>
 
       <AdjustStockModal

@@ -22,7 +22,7 @@ export default function Orders() {
   const [paymentStatus, setPaymentStatus] = useState('');
   const [page, setPage] = useState(1);
 
-  const params = { search: search || undefined, status: status || undefined, paymentStatus: paymentStatus || undefined, page, limit: 20 };
+  const params = { search: search || undefined, status: status || undefined, paymentStatus: paymentStatus || undefined, page, limit: 10 };
   const { data, isLoading, isError, refetch } = useAdminOrders(params);
 
   return (

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatCurrency } from '../../utils/formatCurrency.js';
 import EmptyState from '../../components/common/EmptyState.jsx';
 import { TrendingUp } from 'lucide-react';
+import { cn } from '../../utils/cn.js';
 
 const WIDTH = 640;
 const HEIGHT = 220;
@@ -17,6 +18,12 @@ function formatShortDate(isoDate) {
 
 export default function SalesOverTimeChart({ data = [] }) {
   const [hoverIndex, setHoverIndex] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setIsMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   if (data.length === 0) {
     return (
@@ -76,7 +83,12 @@ export default function SalesOverTimeChart({ data = [] }) {
                 width={barWidth}
                 height={Math.max(barHeight, 1)}
                 rx={3}
-                className={isHovered ? 'fill-brand-700' : 'fill-brand-500'}
+                style={{ transformBox: 'fill-box', transformOrigin: 'bottom', transitionDelay: `${index * 10}ms` }}
+                className={cn(
+                  'transition-all duration-500 ease-out',
+                  isHovered ? 'fill-brand-700' : 'fill-brand-500',
+                  isMounted ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'
+                )}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(null)}
               />

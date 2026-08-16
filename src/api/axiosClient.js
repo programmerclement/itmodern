@@ -11,7 +11,12 @@ export const axiosClient = axios.create({
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message = error.response?.data?.message ?? error.message ?? 'Unexpected network error';
+    const data = error.response?.data;
+    // Validation errors come back as a generic "Validation failed" message
+    // plus a { field: reason } details map — surface the first specific
+    // reason instead of the unhelpful generic one.
+    const firstDetail = data?.details && Object.values(data.details)[0];
+    const message = firstDetail ?? data?.message ?? error.message ?? 'Unexpected network error';
     return Promise.reject(new Error(message));
   }
 );

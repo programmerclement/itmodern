@@ -69,8 +69,10 @@ export default function ProductForm() {
   const toast = useToast();
 
   const { data: product, isLoading: productLoading } = useAdminProduct(id);
-  const { data: categories } = useAdminCategories();
-  const { data: brands } = useAdminBrands();
+  const { data: categoriesData } = useAdminCategories({ limit: 100 });
+  const categories = categoriesData?.categories;
+  const { data: brandsData } = useAdminBrands({ limit: 100 });
+  const brands = brandsData?.brands;
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [isSubmitting, setIsSubmitting] = useState(false);

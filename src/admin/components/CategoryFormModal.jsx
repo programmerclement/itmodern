@@ -60,8 +60,23 @@ export default function CategoryFormModal({ isOpen, onClose, category, onSubmit,
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={category ? 'Edit category' : 'Add category'} size="xl">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={category ? 'Edit category' : 'Add category'}
+      size="xl"
+      footer={
+        <>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" form="category-form" isLoading={isSubmitting}>
+            Save category
+          </Button>
+        </>
+      }
+    >
+      <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input label="Name" required value={form.name} onChange={(e) => update({ name: e.target.value })} />
           <Input
@@ -97,15 +112,6 @@ export default function CategoryFormModal({ isOpen, onClose, category, onSubmit,
             />
             Active (visible in shop)
           </label>
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" isLoading={isSubmitting}>
-            Save category
-          </Button>
         </div>
       </form>
     </Modal>

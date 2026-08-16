@@ -3,7 +3,7 @@ import { axiosClient } from '../api/axiosClient.js';
 export const validateCoupon = (code, subtotal) => axiosClient.post('/coupons/validate', { code, subtotal });
 
 // Admin
-export const adminGetCoupons = () => axiosClient.get('/coupons');
+export const adminGetCoupons = (params) => axiosClient.get('/coupons', { params });
 
 export const createCoupon = (payload) => axiosClient.post('/coupons', payload);
 

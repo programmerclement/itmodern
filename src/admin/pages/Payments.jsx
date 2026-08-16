@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { CreditCard, DollarSign, CheckCircle2, Clock } from 'lucide-react';
+import { CreditCard, DollarSign, CheckCircle2, Clock, Search } from 'lucide-react';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../../components/common/Table.jsx';
+import Input from '../../components/common/Input.jsx';
 import Select from '../../components/common/Select.jsx';
 import Badge from '../../components/common/Badge.jsx';
+import Pagination from '../../components/common/Pagination.jsx';
 import { PageLoader } from '../../components/common/Loader.jsx';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import EmptyState from '../../components/common/EmptyState.jsx';
@@ -21,14 +23,18 @@ const STATUS_VARIANT = {
 };
 
 export default function Payments() {
+  const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [network, setNetwork] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data: stats } = useAdminPaymentStats();
   const { data, isLoading, isError, refetch } = useAdminPayments({
+    search: search || undefined,
     status: status || undefined,
     network: network || undefined,
-    limit: 20,
+    page,
+    limit: 10,
   });
 
   return (
@@ -45,7 +51,24 @@ export default function Payments() {
       )}
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-        <Select value={status} onChange={(e) => setStatus(e.target.value)} className="sm:max-w-[180px]">
+        <Input
+          placeholder="Search reference, phone..."
+          leftIcon={<Search className="h-4 w-4" />}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="sm:max-w-xs"
+        />
+        <Select
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+          className="sm:max-w-[180px]"
+        >
           <option value="">All statuses</option>
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
@@ -53,7 +76,14 @@ export default function Payments() {
             </option>
           ))}
         </Select>
-        <Select value={network} onChange={(e) => setNetwork(e.target.value)} className="sm:max-w-[180px]">
+        <Select
+          value={network}
+          onChange={(e) => {
+            setNetwork(e.target.value);
+            setPage(1);
+          }}
+          className="sm:max-w-[180px]"
+        >
           <option value="">All networks</option>
           {NETWORK_OPTIONS.map((n) => (
             <option key={n} value={n}>
@@ -70,38 +100,49 @@ export default function Payments() {
       ) : data.payments.length === 0 ? (
         <EmptyState icon={CreditCard} title="No payments found" description="Try adjusting your filters." />
       ) : (
-        <Table>
-          <Thead>
-            <Tr>
-              <Th>Reference</Th>
-              <Th>Customer</Th>
-              <Th>Order</Th>
-              <Th>Network</Th>
-              <Th>Amount</Th>
-              <Th>Status</Th>
-              <Th>Date</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data.payments.map((payment) => (
-              <Tr key={payment._id}>
-                <Td className="text-xs text-slate-500">{payment.reference}</Td>
-                <Td>
-                  {payment.user ? `${payment.user.firstName} ${payment.user.lastName}` : '—'}
-                </Td>
-                <Td>{payment.order?.orderNumber ?? '—'}</Td>
-                <Td>{payment.network}</Td>
-                <Td>{formatCurrency(payment.amount)}</Td>
-                <Td>
-                  <Badge variant={STATUS_VARIANT[payment.status] ?? 'neutral'}>{payment.status}</Badge>
-                </Td>
-                <Td className="text-xs text-slate-500">
-                  {new Date(payment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </Td>
+        <>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Reference</Th>
+                <Th>Customer</Th>
+                <Th>Order</Th>
+                <Th>Network</Th>
+                <Th>Amount</Th>
+                <Th>Status</Th>
+                <Th>Date</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {data.payments.map((payment) => (
+                <Tr key={payment._id}>
+                  <Td className="text-xs text-slate-500">{payment.reference}</Td>
+                  <Td>
+                    {payment.user?.name ?? '—'}
+                  </Td>
+                  <Td>{payment.order?.orderNumber ?? '—'}</Td>
+                  <Td>{payment.network}</Td>
+                  <Td>{formatCurrency(payment.amount)}</Td>
+                  <Td>
+                    <Badge variant={STATUS_VARIANT[payment.status] ?? 'neutral'}>{payment.status}</Badge>
+                  </Td>
+                  <Td className="text-xs text-slate-500">
+                    {new Date(payment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+
+          {data.pagination.totalPages > 1 && (
+            <Pagination
+              page={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              onPageChange={setPage}
+              className="mt-6"
+            />
+          )}
+        </>
       )}
     </div>
   );

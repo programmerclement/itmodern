@@ -11,10 +11,7 @@ import { useAdminOrders } from '../../hooks/useAdminOrders.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as userService from '../../services/userService.js';
 import { formatCurrency } from '../../utils/formatCurrency.js';
-
-function initialsFor(user) {
-  return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
-}
+import { getInitials } from '../../utils/name.js';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -42,12 +39,12 @@ export default function CustomerDetail() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-lg font-semibold text-brand-700">
-            {initialsFor(user)}
+            {getInitials(user.name)}
           </div>
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{user.name}</h1>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-sm text-slate-500">{user.email}</span>
+              <span className="text-sm text-slate-500">{user.email || user.phone}</span>
               <Badge variant={user.role === 'admin' ? 'brand' : 'neutral'}>{user.role}</Badge>
               <Badge variant={user.status === 'active' ? 'success' : 'danger'}>{user.status}</Badge>
             </div>

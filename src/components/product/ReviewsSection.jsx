@@ -7,6 +7,7 @@ import Button from '../common/Button.jsx';
 import EmptyState from '../common/EmptyState.jsx';
 import { useProductReviews, useCanReview } from '../../hooks/useReviews.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { getShortDisplayName } from '../../utils/name.js';
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -72,7 +73,7 @@ export default function ReviewsSection({ product }) {
                 <div className="flex items-center gap-2">
                   <StarRating value={review.rating} size="sm" />
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                    {review.user?.firstName} {review.user?.lastName?.[0]}.
+                    {getShortDisplayName(review.user?.name)}
                   </span>
                 </div>
                 <span className="text-xs text-slate-400 dark:text-slate-500">{formatDate(review.createdAt)}</span>
