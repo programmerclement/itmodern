@@ -26,6 +26,7 @@ function loadGoogleScript() {
 }
 
 export default function GoogleSignInButton({ onCredential, disabled = false }) {
+  const wrapperRef = useRef(null);
   const containerRef = useRef(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -38,6 +39,10 @@ export default function GoogleSignInButton({ onCredential, disabled = false }) {
       .then(() => {
         if (cancelled || !containerRef.current) return;
 
+        // Google's button takes a fixed pixel width — measure the wrapper so
+        // it never overflows a narrow phone screen instead of hardcoding 336.
+        const width = Math.min(336, Math.floor(wrapperRef.current?.getBoundingClientRect().width ?? 336));
+
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: (response) => onCredential(response.credential),
@@ -46,7 +51,7 @@ export default function GoogleSignInButton({ onCredential, disabled = false }) {
         window.google.accounts.id.renderButton(containerRef.current, {
           theme: 'outline',
           size: 'large',
-          width: 336,
+          width,
           text: 'continue_with',
         });
 
@@ -63,9 +68,11 @@ export default function GoogleSignInButton({ onCredential, disabled = false }) {
   if (!GOOGLE_CLIENT_ID) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className={isReady ? 'dark:rounded-md dark:bg-white dark:p-0.5' : 'hidden'}
-    />
+    <div ref={wrapperRef} className="w-full max-w-[336px]">
+      <div
+        ref={containerRef}
+        className={isReady ? 'flex justify-center dark:rounded-md dark:bg-white dark:p-0.5' : 'hidden'}
+      />
+    </div>
   );
 }

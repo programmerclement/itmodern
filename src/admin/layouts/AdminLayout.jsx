@@ -19,6 +19,8 @@ import {
   PanelLeftOpen,
   Store,
   ChevronDown,
+  Menu,
+  X,
 } from 'lucide-react';
 import { APP_NAME, LOGO_URL } from '../../constants/config.js';
 import { cn } from '../../utils/cn.js';
@@ -66,8 +68,6 @@ const NAV_GROUPS = [
     items: [{ to: '/admin/settings', icon: Settings, label: 'Settings' }],
   },
 ];
-
-const NAV_ITEMS_FLAT = NAV_GROUPS.flatMap((group) => group.items);
 
 const SIDEBAR_COLLAPSED_KEY = 'itmodern_admin_sidebar_collapsed';
 
@@ -192,9 +192,78 @@ function CollapsedNavGroup({ group }) {
   );
 }
 
+function MobileNavDrawer({ isOpen, onClose }) {
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div className="absolute inset-0 bg-slate-900/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white shadow-xl animate-slide-in-left">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-4">
+          <div className="flex items-center gap-2">
+            <img src={LOGO_URL} alt={APP_NAME} className="h-7 w-7 object-contain" />
+            <span className="text-sm font-semibold text-slate-900">{APP_NAME} Admin</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.heading}>
+              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                {group.heading}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium',
+                        isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600 hover:bg-slate-50'
+                      )
+                    }
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function AdminLayout() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(getStoredCollapsed);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState(() => {
     const map = {};
     for (const group of NAV_GROUPS) {
@@ -210,6 +279,10 @@ export default function AdminLayout() {
     if (activeGroup) {
       setExpandedGroups((prev) => (prev[activeGroup.heading] ? prev : { ...prev, [activeGroup.heading]: true }));
     }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    setIsMobileNavOpen(false);
   }, [location.pathname]);
 
   const toggleCollapsed = () => {
@@ -300,7 +373,15 @@ export default function AdminLayout() {
 
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setIsMobileNavOpen(true)}
+              aria-label="Open menu"
+              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
             <img src={LOGO_URL} alt={APP_NAME} className="h-7 w-7 object-contain" />
             <span className="text-sm font-semibold text-slate-900">{APP_NAME} Admin</span>
           </div>
@@ -316,24 +397,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 lg:hidden">
-          {NAV_ITEMS_FLAT.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium',
-                  isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-600'
-                )
-              }
-            >
-              <item.icon className="h-3.5 w-3.5" />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        <MobileNavDrawer isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />
 
         <div className="hidden items-center justify-end gap-3 border-b border-slate-200 bg-white px-6 py-2.5 lg:flex">
           <NavLink

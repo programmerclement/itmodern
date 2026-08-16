@@ -62,14 +62,14 @@ function InventorySection({ title, icon, emptyTitle, useHook, search, page, onSe
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <CardTitle>{title}</CardTitle>
         <Input
           placeholder="Search name or SKU..."
           leftIcon={<Search className="h-4 w-4" />}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-[220px]"
+          className="w-full sm:max-w-[220px]"
         />
       </CardHeader>
       <CardBody>
