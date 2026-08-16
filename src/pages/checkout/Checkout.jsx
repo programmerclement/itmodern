@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Truck, Store, Plus, Check, Smartphone, Tag, X } from 'lucide-react';
+import { Truck, Store, Plus, Check, Smartphone, Tag, X, Landmark, Copy } from 'lucide-react';
 import { Card, CardBody, CardHeader, CardTitle } from '../../components/common/Card.jsx';
 import Input from '../../components/common/Input.jsx';
 import Select from '../../components/common/Select.jsx';
@@ -14,6 +14,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useAddresses, ADDRESSES_QUERY_KEY } from '../../hooks/useAddresses.js';
+import { useSiteSettings } from '../../hooks/useSiteSettings.js';
 import * as addressService from '../../services/addressService.js';
 import * as orderService from '../../services/orderService.js';
 import * as paymentService from '../../services/paymentService.js';
@@ -22,18 +23,44 @@ import { formatCurrency } from '../../utils/formatCurrency.js';
 import {
   DELIVERY_FEE_RWF,
   FREE_DELIVERY_THRESHOLD_RWF,
-  PAYMENT_METHODS,
+  PAYMENT_METHODS_ONLINE,
+  PAYMENT_METHODS_MANUAL,
   MOBILE_MONEY_NETWORKS,
 } from '../../constants/checkout.js';
 import { cn } from '../../utils/cn.js';
+
+function PayToRow({ label, value, detail, onCopy }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5 dark:border-slate-700 dark:bg-slate-900">
+      <div className="min-w-0">
+        <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</p>
+        {detail && <p className="truncate text-xs text-slate-500 dark:text-slate-400">{detail}</p>}
+      </div>
+      <button
+        type="button"
+        onClick={onCopy}
+        aria-label={`Copy ${label}`}
+        title="Copy"
+        className="shrink-0 rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+      >
+        <Copy className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 export default function Checkout() {
   const { items, subtotal, itemCount } = useCart();
   const { user } = useAuth();
   const { data: addresses, isLoading: addressesLoading } = useAddresses();
+  const { data: settings } = useSiteSettings();
   const toast = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const onlinePaymentEnabled = settings?.onlinePaymentEnabled ?? true;
+  const paymentMethods = onlinePaymentEnabled ? PAYMENT_METHODS_ONLINE : PAYMENT_METHODS_MANUAL;
 
   const [deliveryMethod, setDeliveryMethod] = useState('DELIVERY');
   const [selectedAddressId, setSelectedAddressId] = useState('');
@@ -66,6 +93,15 @@ export default function Checkout() {
     deliveryMethod === 'DELIVERY' && subtotal < FREE_DELIVERY_THRESHOLD_RWF ? DELIVERY_FEE_RWF : 0;
   const discountAmount = appliedCoupon?.discountAmount ?? 0;
   const total = subtotal + deliveryFee - discountAmount;
+
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('Copied');
+    } catch {
+      toast.error('Could not copy');
+    }
+  };
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -268,7 +304,7 @@ export default function Checkout() {
               <CardTitle>Payment method</CardTitle>
             </CardHeader>
             <CardBody className="space-y-2">
-              {PAYMENT_METHODS.map((method) => (
+              {paymentMethods.map((method) => (
                 <label
                   key={method.value}
                   className={cn(
@@ -319,6 +355,38 @@ export default function Checkout() {
                       value={mobileMoneyPhone}
                       onChange={(e) => setMobileMoneyPhone(e.target.value)}
                     />
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === 'MANUAL_TRANSFER' && (
+                <div className="mt-2 space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <p className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <Landmark className="h-4 w-4" /> Pay to one of the accounts below, then place your order — we'll
+                    confirm receipt and start processing it.
+                  </p>
+                  <div className="space-y-2">
+                    {settings?.momoNumber && (
+                      <PayToRow
+                        label="Mobile money"
+                        value={settings.momoNumber}
+                        detail={settings.momoName}
+                        onCopy={() => handleCopy(settings.momoNumber)}
+                      />
+                    )}
+                    {settings?.bankAccountNumber && (
+                      <PayToRow
+                        label={settings.bankName || 'Bank transfer'}
+                        value={settings.bankAccountNumber}
+                        detail={settings.bankAccountName}
+                        onCopy={() => handleCopy(settings.bankAccountNumber)}
+                      />
+                    )}
+                    {!settings?.momoNumber && !settings?.bankAccountNumber && (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Payment details aren't set up yet — contact us before placing this order.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

@@ -17,7 +17,8 @@ export default function OrderConfirmation() {
     return <ErrorState title="Order not found" onRetry={refetch} />;
   }
 
-  const awaitingPayment = order.paymentMethod === 'MOBILE_MONEY' && order.paymentStatus !== 'PAID';
+  const awaitingPayment =
+    ['MOBILE_MONEY', 'MANUAL_TRANSFER'].includes(order.paymentMethod) && order.paymentStatus !== 'PAID';
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
@@ -33,7 +34,7 @@ export default function OrderConfirmation() {
         <p className="mt-1 text-slate-500 dark:text-slate-400">
           Order <span className="font-medium text-slate-700 dark:text-slate-200">{order.orderNumber}</span> has been received.
           {awaitingPayment
-            ? ' Complete your mobile money payment below to confirm it.'
+            ? ' Complete your payment below to confirm it.'
             : ` We'll be in touch to confirm ${order.deliveryMethod === 'DELIVERY' ? 'delivery' : 'pickup'}.`}
         </p>
       </div>

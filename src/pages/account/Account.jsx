@@ -86,16 +86,20 @@ export default function Account() {
           </CardBody>
         </Card>
 
-        {user.authProvider === 'local' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <ChangePasswordForm />
-            </CardBody>
-          </Card>
-        )}
+        <Card>
+          <CardHeader>
+            <CardTitle>{user.hasPassword ? 'Password' : 'Add a password'}</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {!user.hasPassword && (
+              <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                You signed in with Google, so there&apos;s no password on this account yet. Add one to also be able
+                to log in with your email or phone number.
+              </p>
+            )}
+            <ChangePasswordForm hasPassword={user.hasPassword} />
+          </CardBody>
+        </Card>
       </div>
     </div>
   );

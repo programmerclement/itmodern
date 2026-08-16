@@ -1,8 +1,9 @@
-import { ShieldCheck, Truck, BadgeCheck } from 'lucide-react';
+import { ShieldCheck, Truck, BadgeCheck, Mail, MapPin, Phone } from 'lucide-react';
 import { APP_NAME, COMPANY_SLOGAN, LOGO_URL } from '../../constants/config.js';
 import { useCategories } from '../../hooks/useCategories.js';
 import { useProducts } from '../../hooks/useProducts.js';
 import { useHeroSlides } from '../../hooks/useHeroSlides.js';
+import { useSiteSettings } from '../../hooks/useSiteSettings.js';
 import { buildWhatsAppLink } from '../../utils/whatsapp.js';
 import Button from '../../components/common/Button.jsx';
 import CategoryCard from '../../components/product/CategoryCard.jsx';
@@ -11,6 +12,10 @@ import Skeleton from '../../components/common/Skeleton.jsx';
 import HeroCarousel from '../../components/home/HeroCarousel.jsx';
 import WhatsAppIcon from '../../components/common/WhatsAppIcon.jsx';
 import { cn } from '../../utils/cn.js';
+
+const MAP_ADDRESS = '54 KN 59 St, Kigali';
+const MAP_DIRECTIONS_URL = 'https://maps.app.goo.gl/ikH6CbPr96qBrVDC6';
+const MAP_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(MAP_ADDRESS)}&output=embed`;
 
 const TRUST_INDICATORS = [
   { icon: BadgeCheck, label: 'Genuine products', description: 'New, refurbished & used — always clearly labeled' },
@@ -23,6 +28,7 @@ export default function Home() {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: featuredData, isLoading: featuredLoading } = useProducts({ featured: 'true', limit: 8 });
   const { data: heroSlides } = useHeroSlides();
+  const { data: settings } = useSiteSettings();
 
   const generalWhatsAppLink = buildWhatsAppLink(
     `Hello, I'd like to know more about your products at ${APP_NAME}.`
@@ -119,6 +125,69 @@ export default function Home() {
           <ProductGrid products={featuredData?.products} isLoading={featuredLoading} />
         </section>
       )}
+
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <h2 className="mb-6 text-xl font-semibold text-slate-900 dark:text-slate-100">Visit or reach us</h2>
+        <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 lg:grid-cols-2">
+          <div className="flex flex-col justify-center gap-5 bg-slate-50 p-8 dark:bg-slate-900">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Have questions or want to see a device in person? Here&apos;s how to find us.
+            </p>
+            <div className="space-y-4">
+              {settings?.contactPhone && (
+                <a
+                  href={`tel:${settings.contactPhone.replace(/\s+/g, '')}`}
+                  className="flex items-center gap-3 text-sm font-medium text-slate-700 transition-colors hover:text-brand-600 dark:text-slate-200 dark:hover:text-brand-400"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
+                    <Phone className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                  </span>
+                  {settings.contactPhone}
+                </a>
+              )}
+              {settings?.contactEmail && (
+                <a
+                  href={`mailto:${settings.contactEmail}`}
+                  className="flex items-center gap-3 text-sm font-medium text-slate-700 transition-colors hover:text-brand-600 dark:text-slate-200 dark:hover:text-brand-400"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
+                    <Mail className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                  </span>
+                  {settings.contactEmail}
+                </a>
+              )}
+              <a
+                href={MAP_DIRECTIONS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 text-sm font-medium text-slate-700 transition-colors hover:text-brand-600 dark:text-slate-200 dark:hover:text-brand-400"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
+                  <MapPin className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                </span>
+                {settings?.contactAddress || MAP_ADDRESS}
+              </a>
+            </div>
+            <Button
+              href={MAP_DIRECTIONS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outline"
+              className="w-fit"
+            >
+              Get directions
+            </Button>
+          </div>
+
+          <iframe
+            title={`${APP_NAME} location`}
+            src={MAP_EMBED_SRC}
+            className="h-72 w-full border-0 lg:h-full lg:min-h-[320px]"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
 
       <section className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8">

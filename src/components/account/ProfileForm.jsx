@@ -11,7 +11,7 @@ export default function ProfileForm() {
 
   const [form, setForm] = useState({
     name: user.name,
-    phone: user.phone ?? '',
+    email: user.email ?? '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,7 +25,7 @@ export default function ProfileForm() {
     try {
       const result = await authService.updateProfile({
         name: form.name,
-        phone: form.phone,
+        email: form.email,
       });
       setUser(result.data.user);
       toast.success('Profile updated');
@@ -39,10 +39,21 @@ export default function ProfileForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input label="Full name" name="name" required value={form.name} onChange={handleChange} />
-      {user.email && (
-        <Input label="Email address" value={user.email} disabled helperText="Email address cannot be changed." />
-      )}
-      <Input label="Phone number" name="phone" type="tel" required value={form.phone} onChange={handleChange} />
+      <Input
+        label="Email address"
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={handleChange}
+        helperText="Changing this will require re-verifying your new email."
+      />
+      <Input
+        label="Phone number"
+        type="tel"
+        value={user.phone ?? ''}
+        disabled
+        helperText="Phone number cannot be changed."
+      />
       <div className="flex justify-end">
         <Button type="submit" isLoading={isSubmitting}>
           Save changes

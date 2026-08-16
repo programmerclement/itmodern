@@ -8,6 +8,7 @@ import EmptyState from '../../components/common/EmptyState.jsx';
 import { PageLoader } from '../../components/common/Loader.jsx';
 import HeroSlideFormModal from '../components/HeroSlideFormModal.jsx';
 import ContactInfoForm from '../components/ContactInfoForm.jsx';
+import PaymentSettingsForm from '../components/PaymentSettingsForm.jsx';
 import { useAdminHeroSlides, ADMIN_HERO_SLIDES_KEY } from '../../hooks/useAdminHeroSlides.js';
 import { useSiteSettings, SITE_SETTINGS_KEY } from '../../hooks/useSiteSettings.js';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -24,6 +25,7 @@ export default function Settings() {
   const [editingSlide, setEditingSlide] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingContact, setIsSavingContact] = useState(false);
+  const [isSavingPayment, setIsSavingPayment] = useState(false);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ADMIN_HERO_SLIDES_KEY });
 
@@ -37,6 +39,19 @@ export default function Settings() {
       toast.error('Could not update contact info', err.message);
     } finally {
       setIsSavingContact(false);
+    }
+  };
+
+  const handlePaymentSubmit = async (payload) => {
+    setIsSavingPayment(true);
+    try {
+      await siteSettingsService.updateSiteSettings(payload);
+      toast.success('Payment settings updated');
+      queryClient.invalidateQueries({ queryKey: SITE_SETTINGS_KEY });
+    } catch (err) {
+      toast.error('Could not update payment settings', err.message);
+    } finally {
+      setIsSavingPayment(false);
     }
   };
 
@@ -111,6 +126,15 @@ export default function Settings() {
         </CardHeader>
         <CardBody>
           <ContactInfoForm settings={siteSettings} onSubmit={handleContactSubmit} isSubmitting={isSavingContact} />
+        </CardBody>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Payments</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <PaymentSettingsForm settings={siteSettings} onSubmit={handlePaymentSubmit} isSubmitting={isSavingPayment} />
         </CardBody>
       </Card>
 

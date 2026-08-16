@@ -6,7 +6,7 @@ import * as authService from '../../services/authService.js';
 
 const INITIAL_FORM = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
-export default function ChangePasswordForm() {
+export default function ChangePasswordForm({ hasPassword }) {
   const toast = useToast();
   const [form, setForm] = useState(INITIAL_FORM);
   const [error, setError] = useState('');
@@ -27,8 +27,8 @@ export default function ChangePasswordForm() {
 
     setIsSubmitting(true);
     try {
-      await authService.changePassword(form.currentPassword, form.newPassword);
-      toast.success('Password changed');
+      await authService.changePassword(hasPassword ? form.currentPassword : undefined, form.newPassword);
+      toast.success(hasPassword ? 'Password changed' : 'Password added');
       setForm(INITIAL_FORM);
     } catch (err) {
       setError(err.message);
@@ -39,14 +39,16 @@ export default function ChangePasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <PasswordInput
-        label="Current password"
-        name="currentPassword"
-        autoComplete="current-password"
-        required
-        value={form.currentPassword}
-        onChange={handleChange}
-      />
+      {hasPassword && (
+        <PasswordInput
+          label="Current password"
+          name="currentPassword"
+          autoComplete="current-password"
+          required
+          value={form.currentPassword}
+          onChange={handleChange}
+        />
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <PasswordInput
           label="New password"
@@ -69,7 +71,7 @@ export default function ChangePasswordForm() {
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       <div className="flex justify-end">
         <Button type="submit" isLoading={isSubmitting}>
-          Update password
+          {hasPassword ? 'Update password' : 'Add password'}
         </Button>
       </div>
     </form>

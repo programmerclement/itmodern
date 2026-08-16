@@ -35,9 +35,24 @@ export default function AdminOrderDetail() {
   const [nextStatus, setNextStatus] = useState('');
   const [note, setNote] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isMarkingPaid, setIsMarkingPaid] = useState(false);
 
   if (isLoading) return <PageLoader label="Loading order" />;
   if (isError || !order) return <ErrorState title="Order not found" onRetry={refetch} />;
+
+  const handleMarkPaid = async () => {
+    setIsMarkingPaid(true);
+    try {
+      await orderService.adminMarkPaymentReceived(order.orderNumber);
+      toast.success('Payment marked as received');
+      queryClient.invalidateQueries({ queryKey: ['orders', 'detail', order.orderNumber] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
+    } catch (err) {
+      toast.error('Could not update payment', err.message);
+    } finally {
+      setIsMarkingPaid(false);
+    }
+  };
 
   const handleUpdateStatus = async () => {
     if (!nextStatus) {
@@ -73,6 +88,17 @@ export default function AdminOrderDetail() {
           <OrderStatusBadge status={order.status} />
         </div>
       </div>
+
+      {order.paymentMethod === 'MANUAL_TRANSFER' && order.paymentStatus !== 'PAID' && order.status !== 'CANCELLED' && (
+        <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center">
+          <p className="text-sm text-amber-800">
+            This order is paying by mobile money / bank transfer. Confirm once the payment has actually arrived.
+          </p>
+          <Button size="sm" isLoading={isMarkingPaid} onClick={handleMarkPaid}>
+            Mark payment received
+          </Button>
+        </div>
+      )}
 
       <Card className="mb-6">
         <CardHeader>

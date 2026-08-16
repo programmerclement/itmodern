@@ -13,3 +13,6 @@ export const adminGetOrders = (params) => axiosClient.get('/orders/admin/all', {
 
 export const adminUpdateOrderStatus = (orderNumber, status, note) =>
   axiosClient.patch(`/orders/${orderNumber}/status`, { status, note });
+
+export const adminMarkPaymentReceived = (orderNumber, note) =>
+  axiosClient.patch(`/orders/${orderNumber}/mark-paid`, { note });

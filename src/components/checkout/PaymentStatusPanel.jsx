@@ -6,6 +6,7 @@ import Button from '../common/Button.jsx';
 import Input from '../common/Input.jsx';
 import Select from '../common/Select.jsx';
 import { usePaymentStatusByOrder } from '../../hooks/usePaymentStatus.js';
+import { useSiteSettings } from '../../hooks/useSiteSettings.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as paymentService from '../../services/paymentService.js';
 import { MOBILE_MONEY_NETWORKS } from '../../constants/checkout.js';
@@ -52,9 +53,55 @@ function RetryPaymentForm({ orderNumber, defaultNetwork, onInitiated }) {
 
 export default function PaymentStatusPanel({ order }) {
   const isMobileMoney = order.paymentMethod === 'MOBILE_MONEY';
+  const isManualTransfer = order.paymentMethod === 'MANUAL_TRANSFER';
+  const { data: settings } = useSiteSettings();
   const { payment, isLoading, refetch } = usePaymentStatusByOrder(order.orderNumber, {
     enabled: isMobileMoney && order.paymentStatus !== 'PAID',
   });
+
+  if (isManualTransfer) {
+    if (order.paymentStatus === 'PAID') {
+      return (
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+          <CheckCircle2 className="h-5 w-5 shrink-0" />
+          Payment received. Your order is confirmed.
+        </div>
+      );
+    }
+
+    if (order.status === 'CANCELLED') return null;
+
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+        <p className="flex items-center gap-2 font-medium">
+          <Clock className="h-4 w-4 shrink-0" /> Awaiting payment confirmation
+        </p>
+        <p className="mt-1 text-amber-700 dark:text-amber-400">
+          Pay to one of the accounts below — we&apos;ll confirm receipt and update this order.
+        </p>
+        <div className="mt-3 space-y-1.5">
+          {settings?.momoNumber && (
+            <p className="rounded-lg bg-white/60 px-3 py-2 dark:bg-slate-900/40">
+              <span className="block text-xs uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                Mobile money
+              </span>
+              <span className="font-semibold">{settings.momoNumber}</span>
+              {settings.momoName && ` — ${settings.momoName}`}
+            </p>
+          )}
+          {settings?.bankAccountNumber && (
+            <p className="rounded-lg bg-white/60 px-3 py-2 dark:bg-slate-900/40">
+              <span className="block text-xs uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                {settings.bankName || 'Bank transfer'}
+              </span>
+              <span className="font-semibold">{settings.bankAccountNumber}</span>
+              {settings.bankAccountName && ` — ${settings.bankAccountName}`}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (!isMobileMoney) return null;
 
