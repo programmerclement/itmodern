@@ -8,6 +8,7 @@ import SpecsTable from '../../components/product/SpecsTable.jsx';
 import RelatedProducts from '../../components/product/RelatedProducts.jsx';
 import ReviewsSection from '../../components/product/ReviewsSection.jsx';
 import WishlistButton from '../../components/product/WishlistButton.jsx';
+import ShareButton from '../../components/product/ShareButton.jsx';
 import WhatsAppIcon from '../../components/common/WhatsAppIcon.jsx';
 import QuantitySelector from '../../components/cart/QuantitySelector.jsx';
 import Button from '../../components/common/Button.jsx';
@@ -97,12 +98,21 @@ export default function ProductDetails() {
         <ProductGallery images={product.images} productName={product.name} categorySlug={product.category?.slug} />
 
         <div>
-          {product.brand?.name && (
-            <span className="text-sm font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              {product.brand.name}
-            </span>
-          )}
-          <h1 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{product.name}</h1>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              {product.brand?.name && (
+                <span className="text-sm font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                  {product.brand.name}
+                </span>
+              )}
+              <h1 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{product.name}</h1>
+            </div>
+            <ShareButton
+              title={product.name}
+              text={`Check out ${product.name} on ${APP_NAME}`}
+              className="static shrink-0 border border-slate-200 dark:border-slate-700"
+            />
+          </div>
 
           <div className="mt-3 flex items-center gap-3">
             <ConditionBadge condition={product.condition} conditionGrade={product.conditionGrade} />

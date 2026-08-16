@@ -33,7 +33,7 @@ const EMPTY_FORM = {
   warrantyDuration: '',
   warrantyUnit: 'months',
   tags: '',
-  status: 'draft',
+  status: 'published',
   featured: false,
 };
 

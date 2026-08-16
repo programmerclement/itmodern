@@ -371,7 +371,7 @@ export default function AdminLayout() {
         </nav>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
           <div className="flex items-center gap-1">
             <button
@@ -409,7 +409,7 @@ export default function AdminLayout() {
           <AccountMenu />
         </div>
 
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="min-w-0 flex-1 p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
