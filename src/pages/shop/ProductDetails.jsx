@@ -152,9 +152,9 @@ export default function ProductDetails() {
             </div>
           )}
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <Button
-              className="flex-1"
+              className="flex-1 sm:min-w-[140px]"
               disabled={outOfStock}
               isLoading={isAdding}
               leftIcon={<ShoppingCart className="h-4 w-4" />}
@@ -163,7 +163,12 @@ export default function ProductDetails() {
               {outOfStock ? 'Out of stock' : 'Add to cart'}
             </Button>
             {!outOfStock && (
-              <Button variant="accent" className="flex-1" isLoading={isAdding} onClick={handleBuyNow}>
+              <Button
+                variant="accent"
+                className="flex-1 sm:min-w-[140px]"
+                isLoading={isAdding}
+                onClick={handleBuyNow}
+              >
                 Buy now
               </Button>
             )}
@@ -174,20 +179,19 @@ export default function ProductDetails() {
                 className="static shrink-0 border border-slate-200 dark:border-slate-700"
               />
             )}
+            {whatsappLink && (
+              <Button
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outline"
+                className="flex-1 sm:min-w-[140px]"
+                leftIcon={<WhatsAppIcon className="h-4 w-4 text-[#25D366]" />}
+              >
+                Ask on WhatsApp
+              </Button>
+            )}
           </div>
-
-          {whatsappLink && (
-            <Button
-              href={whatsappLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="outline"
-              className="mt-2 w-full"
-              leftIcon={<WhatsAppIcon className="h-4 w-4 text-[#25D366]" />}
-            >
-              Ask on WhatsApp
-            </Button>
-          )}
 
           {product.description && (
             <div className="mt-8">

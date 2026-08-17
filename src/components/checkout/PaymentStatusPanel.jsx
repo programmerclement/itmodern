@@ -10,6 +10,7 @@ import { useSiteSettings } from '../../hooks/useSiteSettings.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import * as paymentService from '../../services/paymentService.js';
 import { MOBILE_MONEY_NETWORKS } from '../../constants/checkout.js';
+import PayToDetails from './PayToDetails.jsx';
 
 function RetryPaymentForm({ orderNumber, defaultNetwork, onInitiated }) {
   const toast = useToast();
@@ -79,25 +80,8 @@ export default function PaymentStatusPanel({ order }) {
         <p className="mt-1 text-amber-700 dark:text-amber-400">
           Pay to one of the accounts below — we&apos;ll confirm receipt and update this order.
         </p>
-        <div className="mt-3 space-y-1.5">
-          {settings?.momoNumber && (
-            <p className="rounded-lg bg-white/60 px-3 py-2 dark:bg-slate-900/40">
-              <span className="block text-xs uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                Mobile money
-              </span>
-              <span className="font-semibold">{settings.momoNumber}</span>
-              {settings.momoName && ` — ${settings.momoName}`}
-            </p>
-          )}
-          {settings?.bankAccountNumber && (
-            <p className="rounded-lg bg-white/60 px-3 py-2 dark:bg-slate-900/40">
-              <span className="block text-xs uppercase tracking-wide text-amber-600 dark:text-amber-400">
-                {settings.bankName || 'Bank transfer'}
-              </span>
-              <span className="font-semibold">{settings.bankAccountNumber}</span>
-              {settings.bankAccountName && ` — ${settings.bankAccountName}`}
-            </p>
-          )}
+        <div className="mt-3">
+          <PayToDetails settings={settings} amount={order.total} />
         </div>
       </div>
     );

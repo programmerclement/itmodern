@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, Search, X } from 'lucide-react';
 import ProductGrid from '../../components/product/ProductGrid.jsx';
@@ -24,6 +24,7 @@ export default function Shop() {
   const { categorySlug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState(searchParams.get('q') ?? '');
 
   const { data: activeCategory } = useCategory(categorySlug);
 
@@ -43,6 +44,10 @@ export default function Shop() {
       specs,
     };
   }, [searchParams]);
+
+  useEffect(() => {
+    setSearchInput(filters.q);
+  }, [filters.q]);
 
   const updateFilters = (patch, { resetPage = true } = {}) => {
     const next = new URLSearchParams(searchParams);
@@ -109,23 +114,37 @@ export default function Shop() {
           )}
         </div>
 
-        <div className="flex flex-1 items-center gap-2 sm:max-w-sm">
+        <form
+          className="flex flex-1 items-center gap-2 sm:max-w-sm"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateFilters({ q: searchInput });
+          }}
+        >
           <Input
             placeholder="Search products..."
             leftIcon={<Search className="h-4 w-4" />}
             rightIcon={
-              filters.q ? (
-                <button type="button" onClick={() => updateFilters({ q: '' })} aria-label="Clear search">
+              searchInput ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput('');
+                    updateFilters({ q: '' });
+                  }}
+                  aria-label="Clear search"
+                >
                   <X className="h-4 w-4" />
                 </button>
               ) : null
             }
-            defaultValue={filters.q}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') updateFilters({ q: event.target.value });
-            }}
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
           />
-        </div>
+          <Button type="submit" className="shrink-0">
+            Search
+          </Button>
+        </form>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">

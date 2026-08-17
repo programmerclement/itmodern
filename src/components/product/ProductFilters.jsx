@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Input from '../common/Input.jsx';
 import Button from '../common/Button.jsx';
@@ -27,6 +28,19 @@ export default function ProductFilters({ filters, onChange, activeCategory, curr
   const specFields = activeCategory?.specFields?.filter((field) => field.filterable) ?? [];
 
   const update = (patch) => onChange({ ...patch });
+
+  // Price is a free-text number, unlike the toggle-style filters below —
+  // applying it on every keystroke would fire a request per digit typed.
+  const [priceRange, setPriceRange] = useState({ min: filters.minPrice, max: filters.maxPrice });
+
+  useEffect(() => {
+    setPriceRange({ min: filters.minPrice, max: filters.maxPrice });
+  }, [filters.minPrice, filters.maxPrice]);
+
+  const handleApplyPrice = (event) => {
+    event.preventDefault();
+    update({ minPrice: priceRange.min, maxPrice: priceRange.max });
+  };
 
   const handleSpecChange = (key, value) => {
     const nextSpecs = { ...filters.specs };
@@ -118,23 +132,28 @@ export default function ProductFilters({ filters, onChange, activeCategory, curr
 
       <div>
         <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-slate-100">Price range (RWF)</h3>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            min="0"
-            placeholder="Min"
-            value={filters.minPrice}
-            onChange={(event) => update({ minPrice: event.target.value })}
-          />
-          <span className="text-slate-400 dark:text-slate-500">–</span>
-          <Input
-            type="number"
-            min="0"
-            placeholder="Max"
-            value={filters.maxPrice}
-            onChange={(event) => update({ maxPrice: event.target.value })}
-          />
-        </div>
+        <form onSubmit={handleApplyPrice}>
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min="0"
+              placeholder="Min"
+              value={priceRange.min}
+              onChange={(event) => setPriceRange((prev) => ({ ...prev, min: event.target.value }))}
+            />
+            <span className="text-slate-400 dark:text-slate-500">–</span>
+            <Input
+              type="number"
+              min="0"
+              placeholder="Max"
+              value={priceRange.max}
+              onChange={(event) => setPriceRange((prev) => ({ ...prev, max: event.target.value }))}
+            />
+          </div>
+          <Button type="submit" variant="outline" size="sm" className="mt-2 w-full">
+            Apply
+          </Button>
+        </form>
       </div>
 
       {specFields.length > 0 && (
