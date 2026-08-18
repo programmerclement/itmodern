@@ -10,6 +10,7 @@ import ReviewsSection from '../../components/product/ReviewsSection.jsx';
 import WishlistButton from '../../components/product/WishlistButton.jsx';
 import ShareButton from '../../components/product/ShareButton.jsx';
 import WhatsAppIcon from '../../components/common/WhatsAppIcon.jsx';
+import WhatsAppButton from '../../components/common/WhatsAppButton.jsx';
 import QuantitySelector from '../../components/cart/QuantitySelector.jsx';
 import Button from '../../components/common/Button.jsx';
 import { PageLoader } from '../../components/common/Loader.jsx';
@@ -17,7 +18,7 @@ import ErrorState from '../../components/common/ErrorState.jsx';
 import { useProduct } from '../../hooks/useProducts.js';
 import { useCart } from '../../context/CartContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
-import { buildProductInquiryLink } from '../../utils/whatsapp.js';
+import { buildProductInquiryMessage } from '../../utils/whatsapp.js';
 import { APP_NAME } from '../../constants/config.js';
 
 function formatWarranty(warranty) {
@@ -63,7 +64,7 @@ export default function ProductDetails() {
     );
   }
 
-  const whatsappLink = buildProductInquiryLink(product);
+  const whatsappMessage = buildProductInquiryMessage(product);
   const warrantyLabel = formatWarranty(product.warranty);
   const productId = product.id ?? product._id;
   const outOfStock = product.stockQuantity <= 0;
@@ -152,9 +153,9 @@ export default function ProductDetails() {
             </div>
           )}
 
-          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             <Button
-              className="flex-1 sm:min-w-[140px]"
+              className="w-full"
               disabled={outOfStock}
               isLoading={isAdding}
               leftIcon={<ShoppingCart className="h-4 w-4" />}
@@ -163,12 +164,7 @@ export default function ProductDetails() {
               {outOfStock ? 'Out of stock' : 'Add to cart'}
             </Button>
             {!outOfStock && (
-              <Button
-                variant="accent"
-                className="flex-1 sm:min-w-[140px]"
-                isLoading={isAdding}
-                onClick={handleBuyNow}
-              >
+              <Button variant="accent" className="w-full" isLoading={isAdding} onClick={handleBuyNow}>
                 Buy now
               </Button>
             )}
@@ -176,22 +172,18 @@ export default function ProductDetails() {
               <WishlistButton
                 productId={productId}
                 size="md"
-                className="static shrink-0 border border-slate-200 dark:border-slate-700"
+                className="static mx-auto shrink-0 border border-slate-200 dark:border-slate-700"
               />
             )}
-            {whatsappLink && (
-              <Button
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outline"
-                className="flex-1 sm:min-w-[140px]"
-                leftIcon={<WhatsAppIcon className="h-4 w-4 text-[#25D366]" />}
-              >
-                Ask on WhatsApp
-              </Button>
-            )}
           </div>
+
+          <WhatsAppButton
+            message={whatsappMessage}
+            className="mt-2 w-full bg-[#25D366] text-white hover:bg-[#1ebe5a] active:bg-[#189c4c] focus-visible:ring-[#25D366]"
+            leftIcon={<WhatsAppIcon className="h-4 w-4 text-white" />}
+          >
+            Ask on WhatsApp
+          </WhatsAppButton>
 
           {product.description && (
             <div className="mt-8">

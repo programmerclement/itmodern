@@ -4,13 +4,13 @@ import { useCategories } from '../../hooks/useCategories.js';
 import { useProducts } from '../../hooks/useProducts.js';
 import { useHeroSlides } from '../../hooks/useHeroSlides.js';
 import { useSiteSettings } from '../../hooks/useSiteSettings.js';
-import { buildWhatsAppLink } from '../../utils/whatsapp.js';
 import Button from '../../components/common/Button.jsx';
 import CategoryCard from '../../components/product/CategoryCard.jsx';
 import ProductGrid from '../../components/product/ProductGrid.jsx';
 import Skeleton from '../../components/common/Skeleton.jsx';
 import HeroCarousel from '../../components/home/HeroCarousel.jsx';
 import WhatsAppIcon from '../../components/common/WhatsAppIcon.jsx';
+import WhatsAppButton from '../../components/common/WhatsAppButton.jsx';
 import { cn } from '../../utils/cn.js';
 
 const MAP_ADDRESS = '54 KN 59 St, Kigali';
@@ -30,9 +30,6 @@ export default function Home() {
   const { data: heroSlides } = useHeroSlides();
   const { data: settings } = useSiteSettings();
 
-  const generalWhatsAppLink = buildWhatsAppLink(
-    `Hello, I'd like to know more about your products at ${APP_NAME}.`
-  );
   const hasHeroSlides = heroSlides?.length > 0;
 
   return (
@@ -81,18 +78,14 @@ export default function Home() {
             <Button to="/shop" size="lg">
               Shop now
             </Button>
-            {generalWhatsAppLink && (
-              <Button
-                href={generalWhatsAppLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="outline"
-                size="lg"
-                leftIcon={<WhatsAppIcon className="h-4 w-4 text-[#25D366]" />}
-              >
-                Chat on WhatsApp
-              </Button>
-            )}
+            <WhatsAppButton
+              message={`Hello, I'd like to know more about your products at ${APP_NAME}.`}
+              variant="outline"
+              size="lg"
+              leftIcon={<WhatsAppIcon className="h-4 w-4 text-[#25D366]" />}
+            >
+              Chat on WhatsApp
+            </WhatsAppButton>
           </div>
         </div>
       </section>

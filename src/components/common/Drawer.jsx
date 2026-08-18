@@ -9,7 +9,7 @@ const sideClasses = {
   bottom: 'bottom-0 left-0 w-full max-h-[85vh] rounded-t-2xl animate-slide-in-bottom',
 };
 
-export default function Drawer({ isOpen, onClose, title, children, side = 'right' }) {
+export default function Drawer({ isOpen, onClose, title, children, footer, side = 'right' }) {
   useEffect(() => {
     if (!isOpen) return undefined;
     document.body.style.overflow = 'hidden';
@@ -52,6 +52,11 @@ export default function Drawer({ isOpen, onClose, title, children, side = 'right
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        {footer && (
+          <div className="shrink-0 border-t border-slate-100 bg-white px-5 py-4 dark:border-slate-700 dark:bg-slate-800">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body

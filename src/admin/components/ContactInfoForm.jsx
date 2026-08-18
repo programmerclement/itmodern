@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
 
-const EMPTY_FORM = { contactPhone: '', contactEmail: '', contactAddress: '' };
+const EMPTY_FORM = { contactPhone: '', contactEmail: '', contactAddress: '', businessTin: '' };
 
 export default function ContactInfoForm({ settings, onSubmit, isSubmitting }) {
   const [form, setForm] = useState(EMPTY_FORM);
@@ -13,6 +13,7 @@ export default function ContactInfoForm({ settings, onSubmit, isSubmitting }) {
         contactPhone: settings.contactPhone ?? '',
         contactEmail: settings.contactEmail ?? '',
         contactAddress: settings.contactAddress ?? '',
+        businessTin: settings.businessTin ?? '',
       });
     }
   }, [settings]);
@@ -44,6 +45,13 @@ export default function ContactInfoForm({ settings, onSubmit, isSubmitting }) {
         placeholder="e.g. KG 11 Ave, Kigali, Rwanda"
         value={form.contactAddress}
         onChange={(e) => update({ contactAddress: e.target.value })}
+      />
+      <Input
+        label="Tax ID (TIN)"
+        placeholder="120777599"
+        value={form.businessTin}
+        onChange={(e) => update({ businessTin: e.target.value })}
+        helperText="Shown on generated sales receipts."
       />
       <p className="text-xs text-slate-400">Shown in the highlighted bar above the site navbar.</p>
       <div className="flex justify-end">

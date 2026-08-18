@@ -19,6 +19,7 @@ import Quotations from '../pages/account/Quotations.jsx';
 import QuotationDetail from '../pages/account/QuotationDetail.jsx';
 import Warranty from '../pages/account/Warranty.jsx';
 import WarrantyCheck from '../pages/public/WarrantyCheck.jsx';
+import VerifyReceipt from '../pages/public/VerifyReceipt.jsx';
 import NotFound from '../pages/errors/NotFound.jsx';
 import Login from '../pages/auth/Login.jsx';
 import Register from '../pages/auth/Register.jsx';
@@ -46,6 +47,8 @@ const AdminQuotationDetail = lazy(() => import('../admin/pages/QuotationDetail.j
 const AdminCoupons = lazy(() => import('../admin/pages/Coupons.jsx'));
 const AdminReports = lazy(() => import('../admin/pages/Reports.jsx'));
 const AdminSettings = lazy(() => import('../admin/pages/Settings.jsx'));
+const AdminReceipts = lazy(() => import('../admin/pages/Receipts.jsx'));
+const AdminGenerateReceipt = lazy(() => import('../admin/pages/GenerateReceipt.jsx'));
 
 export default function AppRoutes() {
   return (
@@ -81,6 +84,8 @@ export default function AppRoutes() {
           <Route path="quotations" element={<AdminQuotations />} />
           <Route path="quotations/:quotationNumber" element={<AdminQuotationDetail />} />
           <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="receipts" element={<AdminReceipts />} />
+          <Route path="receipts/new" element={<AdminGenerateReceipt />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>
@@ -93,6 +98,8 @@ export default function AppRoutes() {
         <Route path="/products/:slug" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/warranty-check" element={<WarrantyCheck />} />
+        <Route path="/verify-receipt" element={<VerifyReceipt />} />
+        <Route path="/verify-receipt/:receiptNumber" element={<VerifyReceipt />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/checkout" element={<Checkout />} />

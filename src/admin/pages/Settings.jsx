@@ -9,6 +9,7 @@ import { PageLoader } from '../../components/common/Loader.jsx';
 import HeroSlideFormModal from '../components/HeroSlideFormModal.jsx';
 import ContactInfoForm from '../components/ContactInfoForm.jsx';
 import PaymentSettingsForm from '../components/PaymentSettingsForm.jsx';
+import WhatsAppContactsForm from '../components/WhatsAppContactsForm.jsx';
 import { useAdminHeroSlides, ADMIN_HERO_SLIDES_KEY } from '../../hooks/useAdminHeroSlides.js';
 import { useSiteSettings, SITE_SETTINGS_KEY } from '../../hooks/useSiteSettings.js';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -26,6 +27,7 @@ export default function Settings() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingContact, setIsSavingContact] = useState(false);
   const [isSavingPayment, setIsSavingPayment] = useState(false);
+  const [isSavingWhatsApp, setIsSavingWhatsApp] = useState(false);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ADMIN_HERO_SLIDES_KEY });
 
@@ -52,6 +54,19 @@ export default function Settings() {
       toast.error('Could not update payment settings', err.message);
     } finally {
       setIsSavingPayment(false);
+    }
+  };
+
+  const handleWhatsAppSubmit = async (payload) => {
+    setIsSavingWhatsApp(true);
+    try {
+      await siteSettingsService.updateSiteSettings(payload);
+      toast.success('WhatsApp contacts updated');
+      queryClient.invalidateQueries({ queryKey: SITE_SETTINGS_KEY });
+    } catch (err) {
+      toast.error('Could not update WhatsApp contacts', err.message);
+    } finally {
+      setIsSavingWhatsApp(false);
     }
   };
 
@@ -135,6 +150,19 @@ export default function Settings() {
         </CardHeader>
         <CardBody>
           <PaymentSettingsForm settings={siteSettings} onSubmit={handlePaymentSubmit} isSubmitting={isSavingPayment} />
+        </CardBody>
+      </Card>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>WhatsApp contacts</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <WhatsAppContactsForm
+            settings={siteSettings}
+            onSubmit={handleWhatsAppSubmit}
+            isSubmitting={isSavingWhatsApp}
+          />
         </CardBody>
       </Card>
 

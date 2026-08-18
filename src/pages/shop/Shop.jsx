@@ -202,7 +202,16 @@ export default function Shop() {
         </div>
       </div>
 
-      <Drawer isOpen={isFilterDrawerOpen} onClose={() => setIsFilterDrawerOpen(false)} title="Filters">
+      <Drawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        title="Filters"
+        footer={
+          <Button className="w-full" onClick={() => setIsFilterDrawerOpen(false)}>
+            Show {data?.pagination?.total ?? 0} {data?.pagination?.total === 1 ? 'result' : 'results'}
+          </Button>
+        }
+      >
         <ProductFilters {...filterProps} />
       </Drawer>
     </div>

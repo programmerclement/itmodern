@@ -13,6 +13,7 @@ import {
   Star,
   FileText,
   Ticket,
+  Receipt,
   BarChart3,
   Settings,
   PanelLeftClose,
@@ -29,12 +30,13 @@ import AccountMenu from '../components/AccountMenu.jsx';
 const NAV_GROUPS = [
   {
     heading: 'Quick access',
-    // Products and Customers are the two most-used pages — always shown
-    // flat, never tucked behind a dropdown/accordion, even collapsed.
+    // Products, Receipts, and Customers are the most-used pages — always
+    // shown flat, never tucked behind a dropdown/accordion, even collapsed.
     alwaysExpanded: true,
     items: [
       { to: '/admin', end: true, icon: LayoutDashboard, label: 'Dashboard' },
       { to: '/admin/products', icon: Package, label: 'Products' },
+      { to: '/admin/receipts', icon: Receipt, label: 'Receipts' },
       { to: '/admin/customers', icon: Users, label: 'Customers' },
     ],
   },
